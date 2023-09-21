@@ -122,6 +122,6 @@ class ViT_LoRA(nn.Module):
                 test_preds.append(scores.argmax(dim=-1))
             loss = sum(test_loss)/len(test_loss)
             acc = self.accuracy(torch.concat(test_labels, dim=0).cpu(),torch.concat(test_preds, dim=0).cpu())
-            print(f"\tTest:\tLoss - {round(loss, 3)}",'\t'f"Accuracy - {round(acc,3)}")
+            print(f"\tTest:\tLoss - {round(loss, 3)}",'\t',f"Accuracy - {round(acc,3)}")
             
             return loss, acc
