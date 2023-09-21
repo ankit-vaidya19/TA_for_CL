@@ -4,22 +4,23 @@ from transformers import ViTModel
 from peft import LoraConfig, get_peft_model
 from tqdm import tqdm
 import numpy as np
-from ml_collections import ConfigDict
+# from ml_collections import ConfigDict
+
 
 np.random.seed(42)
 torch.manual_seed(42)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(42)
 
-cfg = ConfigDict
-cfg.epochs = 50
-cfg.batch_size = 16
-cfg.lr = 5e-6
-cfg.weight_decay = 1e-6
+# cfg = ConfigDict
+# cfg.epochs = 50
+# cfg.batch_size = 16
+# cfg.lr = 5e-6
+# cfg.weight_decay = 1e-6
 
 
 class ViT_LoRA(nn.Module):
-    def __init__(self, model_name="google/vit-base-patch16-224", use_LoRA=False):
+    def __init__(self, args, model_name="google/vit-base-patch16-224", use_LoRA=False):
         super().__init__()
         self.model_name = model_name
         self.use_LoRA = use_LoRA
@@ -66,14 +67,14 @@ class ViT_LoRA(nn.Module):
         acc = np.sum((true == pred).astype(np.float32)) / len(true)
         return acc * 100
 
-    def fit(self, train_loader):
+    def fit(self, args, train_loader):
         optim = torch.optim.Adam(
-            params=self.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay
+            params=self.parameters(), lr=args.lr, weight_decay=args.weight_decay
         )
         criterion = nn.CrossEntropyLoss()
         self.train()
-        for epoch in range(cfg.epochs):
-            print(f"{epoch}/{cfg.epochs}")
+        for epoch in range(args.epochs):
+            print(f"{epoch}/{args.epochs}")
             train_loss = []
             train_preds = []
             train_labels = []

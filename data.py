@@ -28,12 +28,24 @@ label2int = {'oxfordpet' : {'american_bulldog': 0, 'scottish_terrier': 1, 'engli
             }
 
 class ImageDataset(Dataset):
-    def __init__(self, args, image_list, label_list):
+    def __init__(self, args, image_list, label_list, split, processor):
         super().__init__()
         self.image_list = image_list
         self.label_list = label_list
 
-        self.transform = transforms.Compose([transforms.ToTensor()])
+        if split == 'train':
+            self.transform = transforms.Compose([
+                                transforms.RandomResizedCrop(processor.size["height"]),
+                                transforms.RandomHorizontalFlip(),
+                                transforms.ToTensor(),
+                                transforms.Normalize(mean=processor.image_mean, std=processor.image_std)
+                                ]) 
+        elif split == 'test':
+            self.transform = transforms.Compose([transforms.Resize(processor.size["height"]),
+                                transforms.CenterCrop(processor.size["height"]),
+                                transforms.ToTensor(),
+                                transforms.Normalize(mean=processor.image_mean, std=processor.image_std)
+                                ])
 
     def __len__(self):
         return len(self.label_list)
@@ -45,8 +57,9 @@ class ImageDataset(Dataset):
 
 
 class TaskDataset():
-    def __init__(self, args, task_dict=task_dict, label2int=label2int):
+    def __init__(self, args, img_processor, task_dict=task_dict, label2int=label2int):
         self.args = args
+        self.img_processor = img_processor
         self.task_dict = task_dict[args.data]
         self.label2int = label2int[args.data]
         self.train_imgs, self.train_labels = [],[]
@@ -84,7 +97,8 @@ class TaskDataset():
 
     def get_datasets(self):
         print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ", end=" ")
-        return ImageDataset(self.args, self.train_imgs, self.train_labels), ImageDataset(self.args, self.test_imgs, self.test_labels)
+        print("CLASSES : ", self.taskdict[self.args.tasnum])
+        return ImageDataset(self.args, self.train_imgs, self.train_labels, 'train', self.img_processor), ImageDataset(self.args, self.test_imgs, self.test_labels, 'test', self.img_processor)
         print("DONE")
 
 
