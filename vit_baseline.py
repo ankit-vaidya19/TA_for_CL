@@ -97,20 +97,19 @@ class ViT_LoRA(nn.Module):
         criterion = nn.CrossEntropyLoss()
         self.eval()
         with torch.no_grad():
-            for epoch in range(cfg.epochs):
-                print(f"{epoch}/{cfg.epochs}")
-                train_loss = []
-                train_preds = []
-                train_labels = []
-                for batch in tqdm(test_loader):
-                    imgs = batch[0].to(self.device)
-                    labels = batch[1].to(self.device)
-                    scores = self(imgs)
-                    loss = criterion(scores, labels)
-                    train_loss.append(loss.detach().cpu().numpy())
-                    train_labels.append(batch[1])
-                    train_preds.append(scores.argmax(dim=-1))
-                print(f"Test Loss - {sum(train_loss)/len(train_loss)}")
-                print(
-                    f"Test Accuracy - {self.accuracy(torch.concat(train_labels, dim=0).cpu(),torch.concat(train_preds, dim=0).cpu(),)}"
-                )
+            test_loss = []
+            test_preds = []
+            test_labels = []
+            for batch in tqdm(test_loader):
+                imgs = batch[0].to(self.device)
+                labels = batch[1].to(self.device)
+                scores = self(imgs)
+                loss = criterion(scores, labels)
+                test_loss.append(loss.detach().cpu().numpy())
+                test_labels.append(batch[1])
+                test_preds.append(scores.argmax(dim=-1))
+            print(f"Test Loss - {sum(test_loss)/len(test_loss)}")
+            print(
+                f"Test Accuracy - {self.accuracy(torch.concat(test_labels, dim=0).cpu(),torch.concat(test_preds, dim=0).cpu(),)}"
+            )
+            torch.save(self.state_dict(), "vit_basline_oxp.pt")
