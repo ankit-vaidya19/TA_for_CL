@@ -67,19 +67,21 @@ class ViT_LoRA(nn.Module):
         acc = np.sum((true == pred).astype(np.float32)) / len(true)
         return acc * 100
 
-    def fit(self, args, train_loader):
+    def fit(self, args, train_loader, test_loader):
         optim = torch.optim.Adam(
             params=self.parameters(), lr=args.lr, weight_decay=args.weight_decay
         )
         criterion = nn.CrossEntropyLoss()
         self.train()
+
+        best_test_acc = -np.inf
+
         for epoch in range(args.epochs):
-            print(f"{epoch}/{args.epochs}")
+            print(f"{epoch}/{args.epochs-1} epochs")
             train_loss = []
             train_preds = []
             train_labels = []
             for batch in tqdm(train_loader):
-                
                 imgs = torch.Tensor(batch[0]).to(self.device)
                 labels = torch.Tensor(batch[1]).to(self.device)
                 scores = self(imgs)
@@ -90,10 +92,18 @@ class ViT_LoRA(nn.Module):
                 train_loss.append(loss.detach().cpu().numpy())
                 train_labels.append(batch[1])
                 train_preds.append(scores.argmax(dim=-1))
-            print(f"Train Loss - {sum(train_loss)/len(train_loss)}")
-            print(
-                f"Train Accuracy - {self.accuracy(torch.concat(train_labels, dim=0).cpu(),torch.concat(train_preds, dim=0).cpu())}"
-            )
+            loss = sum(train_loss)/len(train_loss)
+            acc = self.accuracy(torch.concat(train_labels, dim=0).cpu(),torch.concat(train_preds, dim=0).cpu())
+            print(f"\tTrain\tLoss - {round(loss, 3)}",'\t',f"Accuracy - {round(acc, 3)}")
+
+            if (epoch+1) % args.test_interval == 0:
+                test_loss, test_acc = self.test(test_loader)
+                if test_acc > best_test_acc:
+                    best_test_acc = test_acc
+                    print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
+                    torch.save(self.state_dict(), f"vit_task_{args.tasknum}_best.pt")
+            print("--"*100)
+                
 
     def test(self, test_loader):
         criterion = nn.CrossEntropyLoss()
@@ -103,15 +113,15 @@ class ViT_LoRA(nn.Module):
             test_preds = []
             test_labels = []
             for batch in tqdm(test_loader):
-                imgs = batch[0].to(self.device)
-                labels = batch[1].to(self.device)
+                imgs = torch.Tensor(batch[0]).to(self.device)
+                labels = torch.Tensor(batch[1]).to(self.device)
                 scores = self(imgs)
                 loss = criterion(scores, labels)
                 test_loss.append(loss.detach().cpu().numpy())
                 test_labels.append(batch[1])
                 test_preds.append(scores.argmax(dim=-1))
-            print(f"Test Loss - {sum(test_loss)/len(test_loss)}")
-            print(
-                f"Test Accuracy - {self.accuracy(torch.concat(test_labels, dim=0).cpu(),torch.concat(test_preds, dim=0).cpu(),)}"
-            )
-            torch.save(self.state_dict(), "vit_basline_oxp.pt")
+            loss = sum(test_loss)/len(test_loss)
+            acc = self.accuracy(torch.concat(test_labels, dim=0).cpu(),torch.concat(test_preds, dim=0).cpu())
+            print(f"\tTest:\tLoss - {round(loss, 3)}",'\t'f"Accuracy - {round(acc,3)}")
+            
+            return loss, acc

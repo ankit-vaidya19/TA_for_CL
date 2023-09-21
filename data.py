@@ -32,7 +32,6 @@ class ImageDataset(Dataset):
         super().__init__()
         self.image_list = image_list
         self.label_list = label_list
-        print(image_list)
 
         if split == 'train':
             self.transform = transforms.Compose([
@@ -88,7 +87,7 @@ class TaskDataset():
                 lines = f_test.readlines()
                 for img in lines:
                     img_name = img.split(' ')[0]
-                    img_label = img_name.rsplit('_', 1)
+                    img_label = img_name.rsplit('_', 1)[0]
                     if img_label in self.task_dict[self.args.tasknum]:
                         self.test_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
                         self.test_labels.append(self.label2int[img_label])        
