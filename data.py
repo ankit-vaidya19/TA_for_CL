@@ -51,7 +51,7 @@ class ImageDataset(Dataset):
         return len(self.label_list)
 
     def __getitem__(self, idx):
-        img = self.transform(Image.open(self.image_list[idx]))
+        img = self.transform(Image.open(self.image_list[idx]).convert('RGB'))
         label = self.label_list[idx]
         return img, label
 
