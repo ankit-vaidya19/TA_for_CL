@@ -20,7 +20,7 @@ parser.add_argument('-nw','--num-workers', type=int, default=2)
 
 parser.add_argument('--lora-r', type=int, default=16, help="The dimension used by the LoRA update matrices")
 parser.add_argument('--lora-alpha', type=int, default=16, help="scaling factor")
-parser.add_argument('--lora-drouput', type=float, default=0.1)
+parser.add_argument('--lora-dropout', type=float, default=0.1)
 parser.add_argument('--lora-bias', type=str, default="none", help="if bias params should be trained or not")
 
 parser.add_argument('-d', '--data', type=str, default='oxfordpet')
@@ -76,8 +76,8 @@ test_loader = DataLoader(
     test_ds, batch_size=cfg.batch_size, shuffle=False, num_workers=2
 )"""
 
-model = ViT_LoRA(use_LoRA=True)
-model.fit(train_loader=trainloader)
+model = ViT_LoRA(args, use_LoRA=True)
+model.fit(args, train_loader=trainloader)
 model.test(test_loader=testloader)
 
 

@@ -30,11 +30,11 @@ class ViT_LoRA(nn.Module):
             self.ViT = ViTModel.from_pretrained(self.model_name)
             self.linear = nn.Linear(768, 37)
             self.config = LoraConfig(
-                r=16,
-                lora_alpha=16,
+                r=args.lora_r,
+                lora_alpha=args.lora_alpha,
                 target_modules=["query", "value"],
-                lora_dropout=0.1,
-                bias="none",
+                lora_dropout=args.lora_dropout,
+                bias=args.lora_bias,
                 modules_to_save=["pooler"],
             )
             self.ViT = get_peft_model(self.ViT, self.config)
@@ -79,8 +79,9 @@ class ViT_LoRA(nn.Module):
             train_preds = []
             train_labels = []
             for batch in tqdm(train_loader):
-                imgs = batch[0].to(self.device)
-                labels = batch[1].to(self.device)
+                
+                imgs = torch.Tensor(batch[0]).to(self.device)
+                labels = torch.Tensor(batch[1]).to(self.device)
                 scores = self(imgs)
                 loss = criterion(scores, labels)
                 optim.zero_grad()

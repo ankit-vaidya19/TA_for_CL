@@ -32,6 +32,7 @@ class ImageDataset(Dataset):
         super().__init__()
         self.image_list = image_list
         self.label_list = label_list
+        print(image_list)
 
         if split == 'train':
             self.transform = transforms.Compose([
@@ -72,33 +73,33 @@ class TaskDataset():
 
             #trainset lists
             with open(f'{self.args.data_dir}/oxford-iiit-pet/annotations/trainval.txt', 'r') as f_train:
+                lines = f_train.readlines()
+                # print(lines)
+                for img in lines:
+                    img_name = img.split(' ')[0]
+                    img_label = img_name.rsplit('_', 1)[0]
+                    if img_label in self.task_dict[self.args.tasknum]:
+                        self.train_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
+                        self.train_labels.append(self.label2int[img_label])
+
+
+            #testset lists
+            with open(f'{self.args.data_dir}/oxford-iiit-pet/annotations/test.txt', 'r') as f_test:
                 lines = f_test.readlines()
                 for img in lines:
                     img_name = img.split(' ')[0]
                     img_label = img_name.rsplit('_', 1)
                     if img_label in self.task_dict[self.args.tasknum]:
                         self.test_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
-                        self.test_labels.append(img_label)
-
-
-            #testset lists
-            with open(f'{self.args.data_dir}/oxford-iiit-pet/annotations/test.txt', 'r') as f_test:
-                lines = f_train.readlines()
-                for img in lines:
-                    img_name = img.split(' ')[0]
-                    img_label = img_name.rsplit('_', 1)
-                    if img_label in self.task_dict[self.args.tasknum]:
-                        self.train_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
-                        self.train_labels.append(img_label)        
+                        self.test_labels.append(self.label2int[img_label])        
         else:
             # Download link for StanfordCars dataset is down 
             # https://github.com/pytorch/vision/issues/7545#issuecomment-1575410733
             pass
 
     def get_datasets(self):
-        print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ", end=" ")
-        print("CLASSES : ", self.taskdict[self.args.tasnum])
+        print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ")
+        print("CLASSES : ", self.task_dict[self.args.tasknum])
         return ImageDataset(self.args, self.train_imgs, self.train_labels, 'train', self.img_processor), ImageDataset(self.args, self.test_imgs, self.test_labels, 'test', self.img_processor)
-        print("DONE")
 
 
