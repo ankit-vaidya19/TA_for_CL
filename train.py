@@ -4,6 +4,8 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from transformers import AutoImageProcessor
 
+import argparse
+
 processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224")
 
 
@@ -47,3 +49,14 @@ test_loader = DataLoader(
 model = ViT_LoRA(use_LoRA=True)
 model.fit(train_loader=train_loader)
 # model.test(test_loader=test_loader)
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-t', '--tasknum', type=int)
+parser.add_argument('-e', '--epochs', type=int, default=50)
+parser.add_argument('-d', '--data', type=str, default='oxfordpet')
+parser.add_argument('-ddir', '--data-dir', type=str)
+parser.add_argument('-t', '--tasknum', type=int)
+# to be continued...
+
+
