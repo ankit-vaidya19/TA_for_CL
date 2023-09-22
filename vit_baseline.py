@@ -101,7 +101,7 @@ class ViT_LoRA(nn.Module):
                 if test_acc > best_test_acc:
                     best_test_acc = test_acc
                     print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
-                    torch.save(self.state_dict(), f"vit_task_{args.tasknum}_best.pt")
+                    torch.save(self.state_dict(), f"{args.output_dir}/vit_task_{args.tasknum}_best.pt")
             print("--"*100)
                 
 

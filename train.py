@@ -4,6 +4,8 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from transformers import AutoImageProcessor
 import torch
+from utils import Logger
+import sys, os
 
 from data import TaskDataset
 
@@ -26,8 +28,16 @@ parser.add_argument('--lora-bias', type=str, default="none", help="if bias param
 
 parser.add_argument('-d', '--data', type=str, default='oxfordpet')
 parser.add_argument('-ddir', '--data-dir', type=str, default='./data')
+parser.add_argument('-odir', '--output-dir', type=str, default='./output')
 parser.add_argument('-t', '--tasknum', type=int)
 args = parser.parse_args()
+
+print(args)
+
+if not os.path.exists(args.output_dir):
+    os.makedirs(args.output_dir, exist_ok=True)
+
+sys.stdout = Logger(os.path.join(args.output_dir, 'logs-task-{}.txt'.format(args.tasknum)))
 
 img_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224")
 
