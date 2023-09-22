@@ -5,7 +5,7 @@ from torchvision import transforms
 from transformers import AutoImageProcessor
 import torch
 from utils import Logger
-import sys, os
+import sys, os, time
 
 from data import TaskDataset
 
@@ -52,10 +52,14 @@ testloader = torch.utils.data.DataLoader(
     )
 
 
+start_time = time.time()
+
 model = ViT_LoRA(args, use_LoRA=True)
 model.fit(args, trainloader, testloader)
 
+end_time = time.time()
 
+print("Time taken for training : ", round(end_time-start_time, 3), "secs")
 
 
 
