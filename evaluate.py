@@ -40,10 +40,15 @@ parser.add_argument('-t', '--tasknum', type=int)
 parser.add_argument('-tot', '--total-tasks', type=int)
 args = parser.parse_args()
 
+sys.stdout = Logger(os.path.join(args.output_dir, 'logs-evaluate-{}.txt'.format(args.data)))
+
 print(args)
 
-
 img_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224")
+
+# get pretrained model
+pretrained_model = ViT_LoRA(args, use_LoRA=True)
+torch.save(pretrained_model, f"{args.output_dir}/vit_pretrained.pt")
 
 test_all_tasks = list()
 
@@ -61,8 +66,10 @@ for task_idx in range(args.total_tasks):
     print(f"Length of {task_idx}th test dataset", len(testset))
     test_all_tasks.append(testloader)
 
-final_model = get_model(args, "/content/vit_pretrained.pt", list_of_task_checkpoints=[f"/content/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=0.25)
+final_model = get_model(args, f"{args.output_dir}/vit_pretrained.pt", list_of_task_checkpoints=[f"/content/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=0.25)
 # print(final_model)
 for task_idx, loader in enumerate(test_all_tasks):
     print(task_idx)
     final_model.test(loader)
+
+torch.save(final_model, f"{args.output_dir}/resultant_model_{args.data}.pt")
