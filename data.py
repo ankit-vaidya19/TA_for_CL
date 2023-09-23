@@ -131,23 +131,27 @@ class TaskDataset():
             dest_dir = f'{self.args.data_dir}/train'
             os.makedirs(dest_dir, exist_ok=True)
             
-            for idx in range(y_train):
+            for idx in range(len(y_train)):
                 img = x_train[:,:,:,idx]
                 img_path = f'{dest_dir}/{idx}.jpg'
-                cv2.imwrite(img_path, img)
-                self.train_imgs.append(img_path)
-                self.train_labels.append(y_train.flat[idx])
+                img_label = y_train.flat[idx]
+                if str(img_label) in self.task_dict[self.args.tasknum]:
+                    cv2.imwrite(img_path, img)
+                    self.train_imgs.append(img_path)
+                    self.train_labels.append(img_label)
             
             #for testlist
             dest_dir = f'{self.args.data_dir}/test'
             os.makedirs(dest_dir, exist_ok=True)
             
-            for idx in range(y_test):
+            for idx in range(len(y_test)):
                 img = x_test[:,:,:,idx]
                 img_path = f'{dest_dir}/{idx}.jpg'
-                cv2.imwrite(img_path, img)
-                self.test_imgs.append(img_path)
-                self.test_labels.append(y_test.flat[idx])
+                img_label = y_test.flat[idx]
+                if str(img_label) in self.task_dict[self.args.tasknum]:
+                    cv2.imwrite(img_path, img)
+                    self.test_imgs.append(img_path)
+                    self.test_labels.append(img_label)
 
         else:
             # Download link for StanfordCars dataset is down 
