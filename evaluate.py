@@ -37,6 +37,7 @@ parser.add_argument('-d', '--data', type=str, default='oxfordpet')
 parser.add_argument('-ddir', '--data-dir', type=str, default='../data')
 parser.add_argument('-odir', '--output-dir', type=str, default='./output')
 parser.add_argument('-t', '--tasknum', type=int)
+parser.add_argument('-tot', '--total-tasks', type=int)
 args = parser.parse_args()
 
 print(args)
@@ -46,7 +47,7 @@ img_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224"
 
 test_all_tasks = list()
 
-for task_idx in range(6):
+for task_idx in range(args.total_tasks):
     args.tasknum = task_idx
     trainset, testset = TaskDataset(args, img_processor).get_datasets()
     # trainloader = torch.utils.data.DataLoader(
@@ -54,13 +55,13 @@ for task_idx in range(6):
     #         num_workers=args.num_workers
     #     )
     testloader = torch.utils.data.DataLoader(
-            testset, batch_size=16, shuffle=False,
+            testset, batch_size=args.batch_size, shuffle=False,
             num_workers=args.num_workers
         )
     print(f"Length of {task_idx}th test dataset", len(testset))
     test_all_tasks.append(testloader)
 
-final_model = get_model(args, "/content/vit_pretrained.pt", list_of_task_checkpoints=[f"/content/vit_task_{i}_best.pt" for i in range(6)], scaling_coef=0.25)
+final_model = get_model(args, "/content/vit_pretrained.pt", list_of_task_checkpoints=[f"/content/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=0.25)
 # print(final_model)
 for task_idx, loader in enumerate(test_all_tasks):
     print(task_idx)
