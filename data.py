@@ -28,7 +28,7 @@ label2int = {'oxfordpet' : {'american_bulldog': 0, 'scottish_terrier': 1, 'engli
             }
 
 class ImageDataset(Dataset):
-    def __init__(self, args, image_list, label_list, split, processor):
+    def __init__(self, image_list, label_list, split, processor):
         super().__init__()
         self.image_list = image_list
         self.label_list = label_list
@@ -99,6 +99,6 @@ class TaskDataset():
     def get_datasets(self):
         print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ")
         print("CLASSES : ", self.task_dict[self.args.tasknum])
-        return ImageDataset(self.args, self.train_imgs, self.train_labels, 'train', self.img_processor), ImageDataset(self.args, self.test_imgs, self.test_labels, 'test', self.img_processor)
+        return ImageDataset(self.train_imgs, self.train_labels, 'train', self.img_processor), ImageDataset(self.test_imgs, self.test_labels, 'test', self.img_processor)
 
 
