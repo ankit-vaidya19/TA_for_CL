@@ -26,7 +26,15 @@ task_dict = {'oxfordpet' : {0 : ['american_bulldog', 'scottish_terrier', 'englis
                         2 : ['2', '5'],
                         3 : ['3', '6'],
                         4 : ['4', '9']
-                        }
+                        },
+            
+            'oxfordflowers' : { 0 : [x for x in range(0,10)] , 1 : [x for x in range(10, 20)],
+                                2 : [x for x in range(20,30)], 3 : [x for x in range(30, 40)],
+                                4 : [x for x in range(40,50)], 5 : [x for x in range(50, 60)],
+                                6 : [x for x in range(60,70)], 7 : [x for x in range(70, 80)],
+                                8 : [x for x in range(80,90)], 9 : [x for x in range(90, 102)]
+                            }
+
             }
 
 # label2int = {'oxfordpet' : {'american_bulldog': 0, 'scottish_terrier': 1, 'english_setter': 2, 'newfoundland': 3, 'Maine_Coon': 4, 'British_Shorthair': 5,
@@ -152,7 +160,10 @@ class TaskDataset():
                     cv2.imwrite(img_path, img)
                     self.test_imgs.append(img_path)
                     self.test_labels.append(img_label)
-
+       
+        elif self.args.data == 'oxfordflowers':
+            pass
+                
         else:
             # Download link for StanfordCars dataset is down 
             # https://github.com/pytorch/vision/issues/7545#issuecomment-1575410733
