@@ -8,7 +8,17 @@ task_dict = {'oxfordpet' : {0 : ['american_bulldog', 'scottish_terrier', 'englis
                             2 : ['japanese_chin', 'Sphynx', 'german_shorthaired', 'basset_hound', 'samoyed', 'shiba_inu'],
                             3 : ['staffordshire_bull_terrier', 'Siamese', 'wheaten_terrier', 'Abyssinian', 'keeshond', 'havanese'],
                             4 : ['yorkshire_terrier', 'Bengal', 'great_pyrenees', 'Egyptian_Mau', 'pomeranian', 'beagle'],
-                            5 : ['american_pit_bull_terrier', 'Ragdoll', 'miniature_pinscher', 'pug', 'Birman', 'leonberger', 'chihuahua']}
+                            5 : ['american_pit_bull_terrier', 'Ragdoll', 'miniature_pinscher', 'pug', 'Birman', 'leonberger', 'chihuahua']},
+            
+            'svhn' : {  0 : ['0', '8'],
+                        1 : ['1', '7'],
+                        2 : ['2', '5'],
+                        3 : ['3', '6'],
+                        4 : ['4', '9']
+                        },
+
+            'oxfordflowers' : {}    
+            
             }
 
 # for i in range(6):
@@ -22,7 +32,24 @@ ranges_of_classes = {
         3: (18, 24),
         4: (24, 30),
         5: (30, 37)
+    },
+
+    "svhn": {
+        0: (0, 1),
+        1: (2, 3),
+        2: (4, 5),
+        3: (6, 7),
+        4: (8, 9),
+    },
+
+    "oxfordflowers" : { 
+        0: (0, 9), 1: (10, 19),
+        2: (20, 29), 3: (30, 39),
+        4: (40, 49), 5: (50, 59),
+        6: (60, 69), 7: (70, 79),
+        8: (80, 89), 9: (90, 101),                        
     }
+
 }
 
 
@@ -43,8 +70,8 @@ def get_model(args, pretrained_checkpoint, list_of_task_checkpoints, scaling_coe
         taskwise_model = ViT_LoRA(args, use_LoRA=True)
         taskwise_model.load_state_dict(finetuned_weights)
         # print(taskwise_model.linear.weight.shape)
-        start_idx = ranges_of_classes["oxfordpet"][task_idx][0]
-        end_idx = ranges_of_classes["oxfordpet"][task_idx][1]
+        start_idx = ranges_of_classes[args.data][task_idx][0]
+        end_idx = ranges_of_classes[args.data][task_idx][1]
         model.linear.weight[start_idx:end_idx , :] = taskwise_model.linear.weight[start_idx:end_idx , :]
         model.linear.bias[start_idx:end_idx] = taskwise_model.linear.bias[start_idx:end_idx]
         # print(model.linear.weight.shape)
