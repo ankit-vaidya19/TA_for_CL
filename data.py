@@ -178,13 +178,13 @@ class TaskDataset():
             
             # trainset lists
             for img_id in x_train:
-                img_path = f'{self.args.data_dir}/flowers-102/jpg/img_{str(img_id).zfill(5)}.jpg'
+                img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
                 img_label = labels[img_id-1]
                 if img_label in self.task_dict[self.args.tasknum]:
                     self.train_imgs.append(img_path)
                     self.train_labels.append(self.label2int[img_label])
             for img_id in x_val:
-                img_path = f'{self.args.data_dir}/flowers-102/jpg/img_{str(img_id).zfill(5)}.jpg'
+                img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
                 img_label = labels[img_id-1]
                 if img_label in self.task_dict[self.args.tasknum]:
                     self.train_imgs.append(img_path)
