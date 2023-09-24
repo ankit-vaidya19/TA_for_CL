@@ -17,6 +17,11 @@ parser.add_argument('-e', '--epochs', type=int, default=50)
 parser.add_argument('-lr', '--lr', type=float, default=5e-6)
 parser.add_argument('-wd', '--weight-decay', type=float, default=1e-6)
 
+parser.add_argument('--lora-r', type=int, default=16, help="The dimension used by the LoRA update matrices")
+parser.add_argument('--lora-alpha', type=int, default=16, help="scaling factor")
+parser.add_argument('--lora-dropout', type=float, default=0.1)
+parser.add_argument('--lora-bias', type=str, default="none", help="if bias params should be trained or not")
+
 args = parser.parse_args()
 
 processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224")
