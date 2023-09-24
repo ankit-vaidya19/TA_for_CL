@@ -1,3 +1,4 @@
+
 import argparse
 from vit_baseline import ViT_LoRA
 import torchvision.datasets as datasets
@@ -13,7 +14,6 @@ parser.add_argument('-bs','--batch_size',type = int,default = 32)
 parser.add_argument('-nw','--num_workers',type=int,default=2)
 parser.add_argument('-nc','--num_classes',type = int,default=10)
 parser.add_argument('-e', '--epochs', type=int, default=50)
-parser.add_argument('-bs', '--batch-size', type=int, default=16)
 parser.add_argument('-lr', '--lr', type=float, default=5e-6)
 parser.add_argument('-wd', '--weight-decay', type=float, default=1e-6)
 
@@ -25,7 +25,7 @@ processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224")
 
 if args.data == "oxfordpets":
     train_ds = datasets.OxfordIIITPet(
-        root=args.ddrir,
+        root=args.data_dir,
         split="trainval",
         download=True,
         transform=transforms.Compose(
@@ -39,7 +39,7 @@ if args.data == "oxfordpets":
     )
 
     test_ds = datasets.OxfordIIITPet(
-        root=args.ddir,
+        root=args.data_dir,
         split="test",
         download=True,
         transform=transforms.Compose(
@@ -53,7 +53,7 @@ if args.data == "oxfordpets":
     )
 elif args.data == "svhn":
     train_ds = datasets.SVHN(
-        root=args.ddrir,
+        root=args.data_dir,
         split="train",
         download=True,
         transform=transforms.Compose(
@@ -67,7 +67,7 @@ elif args.data == "svhn":
     )
 
     test_ds = datasets.SVHN(
-        root=args.ddir,
+        root=args.data_dir,
         split="test",
         download=True,
         transform=transforms.Compose(
@@ -81,7 +81,7 @@ elif args.data == "svhn":
     )
 elif args.data == "oxfordflowers":
     train_ds = datasets.Flowers102(
-        root=args.ddrir,
+        root=args.data_dir,
         split="train",
         download=True,
         transform=transforms.Compose(
@@ -95,7 +95,7 @@ elif args.data == "oxfordflowers":
     )
 
     test_ds = datasets.Flowers102(
-        root=args.ddir,
+        root=args.data_dir,
         split="test",
         download=True,
         transform=transforms.Compose(
