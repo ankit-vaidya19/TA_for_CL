@@ -41,14 +41,16 @@ parser.add_argument('-t', '--tasknum', type=int)
 parser.add_argument('-tot', '--total-tasks', type=int)
 args = parser.parse_args()
 
+if not os.path.exists(args.output_dir):
+    os.makedirs(args.output_dir, exist_ok=True)
+    
 sys.stdout = Logger(os.path.join(args.output_dir, 'logs-evaluate-{}.txt'.format(args.data)))
 
 print(args)
 
 img_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224")
 
-if not os.path.exists(args.output_dir):
-    os.makedirs(args.output_dir, exist_ok=True)
+
 
 # get pretrained model
 pretrained_model = ViT_LoRA(args, use_LoRA=True)
