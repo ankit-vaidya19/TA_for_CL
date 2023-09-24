@@ -162,8 +162,42 @@ class TaskDataset():
                     self.test_labels.append(img_label)
        
         elif self.args.data == 'oxfordflowers':
-            pass
-                
+            trainset = datasets.Flowers102(root=self.args.data_dir,
+                            split='train', download=True,
+                            transform=transforms.ToTensor())
+            testset = datasets.Flowers102(root=self.args.data_dir,
+                            split='test', download=True,
+                            transform=transforms.ToTensor())
+
+            labels = sio.loadmat(f'{self.args.data_dir}/flowers-102/imagelabels.mat')
+            labels = labels['labels'][0]
+            data_splits = sio.loadmat(f'{self.args.data_dir}/flowers-102/setid.mat')
+            x_train = data_splits['trnid'][0]
+            x_val = data_splits['valid'][0]
+            x_test = data_splits['tstid'][0]
+            
+            # trainset lists
+            for img_id in x_train:
+                img_path = f'{self.args.data_dir}/flowers-102/jpg/img_{str(img_id).zfill(5)}.jpg'
+                img_label = labels[img_id-1]
+                if img_label in self.task_dict[self.args.tasknum]:
+                    self.train_imgs.append(img_path)
+                    self.train_labels.append(self.label2int[img_label])
+            for img_id in x_val:
+                img_path = f'{self.args.data_dir}/flowers-102/jpg/img_{str(img_id).zfill(5)}.jpg'
+                img_label = labels[img_id-1]
+                if img_label in self.task_dict[self.args.tasknum]:
+                    self.train_imgs.append(img_path)
+                    self.train_labels.append(self.label2int[img_label])
+            
+            # testset lists
+            for img_id in x_test:
+                img_path = f'{self.args.data_dir}/flowers-102/jpg/img_{str(img_id).zfill(5)}.jpg'
+                img_label = labels[img_id-1]
+                if img_label in self.task_dict[self.args.tasknum]:
+                    self.test_imgs.append(img_path)
+                    self.test_labels.append(self.label2int[img_label])
+
         else:
             # Download link for StanfordCars dataset is down 
             # https://github.com/pytorch/vision/issues/7545#issuecomment-1575410733
