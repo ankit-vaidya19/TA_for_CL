@@ -121,5 +121,5 @@ test_loader = DataLoader(
 )
 
 model = ViT_LoRA(args , use_LoRA=True)
-model.fit(train_loader=train_loader)
-model.test(test_loader=test_loader)
+model.fit(args, train_loader, test_loader)
+model.test(test_loader)
