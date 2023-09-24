@@ -28,7 +28,7 @@ class ViT_LoRA(nn.Module):
         print(self.device)
         if self.use_LoRA:
             self.ViT = ViTModel.from_pretrained(self.model_name)
-            self.linear = nn.Linear(768, 37)
+            self.linear = nn.Linear(768, args.num_classes)
             self.config = LoraConfig(
                 r=args.lora_r,
                 lora_alpha=args.lora_alpha,
@@ -41,7 +41,7 @@ class ViT_LoRA(nn.Module):
             self.print_trainable_parameters()
         else:
             self.ViT = ViTModel.from_pretrained(self.model_name)
-            self.linear = nn.Linear(768, 37)
+            self.linear = nn.Linear(768, args.num_classes)
             self.print_trainable_parameters()
         self.ViT.to(self.device)
         self.linear.to(self.device)
