@@ -99,9 +99,16 @@ class ViT_LoRA(nn.Module):
             if (epoch+1) % args.test_interval == 0:
                 test_loss, test_acc = self.test(test_loader)
                 if test_acc > best_test_acc:
+                    patient_epochs = 0
                     best_test_acc = test_acc
                     print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
                     torch.save(self.state_dict(), f"{args.output_dir}/vit_task_{args.tasknum}_best.pt")
+            else:
+                patient_epochs += 1
+            
+            if patient_epochs == args.patience:
+                print("INFO: Accuracy has not increased in the last {} epochs.".format(args.patience))
+                print("INFO: Stopping the run and saving the best weights.")
             print("--"*100)
                 
 
