@@ -77,7 +77,7 @@ class ViT_LoRA(nn.Module):
         best_test_acc = -np.inf
 
         for epoch in range(args.epochs):
-            print(f"{epoch}/{args.epochs-1} epochs")
+            print(f"{epoch}/{args.epochs-1} epochs   -> (Task-{args.tasknum})")
             train_loss = []
             train_preds = []
             train_labels = []

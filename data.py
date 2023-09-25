@@ -28,11 +28,11 @@ task_dict = {'oxfordpet' : {0 : ['american_bulldog', 'scottish_terrier', 'englis
                         4 : ['4', '9']
                         },
             
-            'oxfordflowers' : { 0 : [x for x in range(0,10)] , 1 : [x for x in range(10, 20)],
-                                2 : [x for x in range(20,30)], 3 : [x for x in range(30, 40)],
-                                4 : [x for x in range(40,50)], 5 : [x for x in range(50, 60)],
-                                6 : [x for x in range(60,70)], 7 : [x for x in range(70, 80)],
-                                8 : [x for x in range(80,90)], 9 : [x for x in range(90, 102)]
+            'oxfordflowers' : { 0 : [x for x in range(1,11)] , 1 : [x for x in range(11, 21)],
+                                2 : [x for x in range(21,31)], 3 : [x for x in range(31, 41)],
+                                4 : [x for x in range(41,51)], 5 : [x for x in range(51, 61)],
+                                6 : [x for x in range(61,71)], 7 : [x for x in range(71, 81)],
+                                8 : [x for x in range(81,91)], 9 : [x for x in range(91, 103)]
                             }
 
             }
