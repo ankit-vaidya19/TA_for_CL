@@ -109,6 +109,7 @@ class ViT_LoRA(nn.Module):
             if patient_epochs == args.patience:
                 print("INFO: Accuracy has not increased in the last {} epochs.".format(args.patience))
                 print("INFO: Stopping the run and saving the best weights.")
+                break
             print("--"*100)
                 
 
