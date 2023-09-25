@@ -39,9 +39,13 @@ parser.add_argument('-odir', '--output-dir', type=str, default='./output')
 parser.add_argument('-midir', '--model-input-dir', type=str, default='./data')
 parser.add_argument('-t', '--tasknum', type=int)
 parser.add_argument('-tot', '--total-tasks', type=int)
-parser.add_argument('-nc', '--num-classes', type=int)
 args = parser.parse_args()
 
+parser.add_argument('-nc', '--num-classes', type=int, default=None)
+args = parser.parse_args()
+
+if args.num_classes == None:
+    args.num_classes = 10 if args.data=='svhn' else( 37 if args.data=='oxfordpet' else 102)
 
 
 

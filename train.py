@@ -37,7 +37,7 @@ parser.add_argument('-nc', '--num-classes', type=int, default=None)
 args = parser.parse_args()
 
 if args.num_classes == None:
-    args.num_classes = len(task_dict[args.data][args.tasknum])
+    args.num_classes = 10 if args.data=='svhn' else( 37 if args.data=='oxfordpet' else 102)
 
 
 print(args)
