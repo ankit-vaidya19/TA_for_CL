@@ -7,7 +7,7 @@ import torch
 from utils import Logger
 import sys, os, time
 
-from data import TaskDataset
+from data import TaskDataset, task_dict
 
 import argparse
 
@@ -33,6 +33,13 @@ parser.add_argument('-odir', '--output-dir', type=str, default='./output')
 parser.add_argument('-t', '--tasknum', type=int)
 args = parser.parse_args()
 
+parser.add_argument('-nc', '--num-classes', type=int, default=None)
+args = parser.parse_args()
+
+if args.num_classes == None:
+    args.num_classes = len(task_dict[args.data][args.tasknum])
+
+
 print(args)
 
 if not os.path.exists(args.output_dir):
@@ -51,7 +58,6 @@ testloader = torch.utils.data.DataLoader(
         testset, batch_size=args.batch_size, shuffle=False,
         num_workers=args.num_workers
     )
-
 
 start_time = time.time()
 
