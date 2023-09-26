@@ -24,7 +24,8 @@ class ViT_LoRA(nn.Module):
         super().__init__()
         self.model_name = model_name
         self.use_LoRA = use_LoRA
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = args.device
+        
         print(self.device)
         if self.use_LoRA:
             self.ViT = ViTModel.from_pretrained(self.model_name)
