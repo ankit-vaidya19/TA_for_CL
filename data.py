@@ -21,11 +21,11 @@ task_dict = {'oxfordpet' : {0 : ['american_bulldog', 'scottish_terrier', 'englis
                             4 : ['yorkshire_terrier', 'Bengal', 'great_pyrenees', 'Egyptian_Mau', 'pomeranian', 'beagle'],
                             5 : ['american_pit_bull_terrier', 'Ragdoll', 'miniature_pinscher', 'pug', 'Birman', 'leonberger', 'chihuahua']},
             
-            'svhn' : {  0 : ['0', '8'],
-                        1 : ['1', '7'],
-                        2 : ['2', '5'],
-                        3 : ['3', '6'],
-                        4 : ['4', '9']
+            'svhn' : {  0 : ['0', '1'],
+                        1 : ['2', '3'],
+                        2 : ['4', '5'],
+                        3 : ['6', '7'],
+                        4 : ['8', '9']
                         },
             
             'oxfordflowers' : { 0 : [x for x in range(1,11)] , 1 : [x for x in range(11, 21)],
