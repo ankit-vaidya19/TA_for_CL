@@ -40,6 +40,7 @@ parser.add_argument('-odir', '--output-dir', type=str, default='./output')
 parser.add_argument('-midir', '--model-input-dir', type=str, default='./data')
 parser.add_argument('-t', '--tasknum', type=int)
 parser.add_argument('-tot', '--total-tasks', type=int)
+parser.add_argument('-scoef', '--scaling-coef', type=float, default=0.25)
 args = parser.parse_args()
 
 parser.add_argument('-nc', '--num-classes', type=int, default=None)
@@ -81,7 +82,7 @@ for task_idx in range(args.total_tasks):
     print(f"Length of {task_idx}th test dataset", len(testset))
     test_all_tasks.append(testloader)
 
-final_model = get_model(args, f"{args.output_dir}/vit_pretrained.pt", list_of_task_checkpoints=[f"{args.model_input_dir}/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=0.25)
+final_model = get_model(args, f"{args.output_dir}/vit_pretrained.pt", list_of_task_checkpoints=[f"{args.model_input_dir}/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=args.scaling_coef)
 # print(final_model)
 for task_idx, loader in enumerate(test_all_tasks):
     print(task_idx)
