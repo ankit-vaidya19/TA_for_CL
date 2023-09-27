@@ -26,6 +26,7 @@ parser.add_argument('-lr', '--lr', type=float, default=5e-6)
 parser.add_argument('-wd', '--weight-decay', type=float, default=1e-6)
 parser.add_argument('-nw','--num-workers', type=int, default=2)
 parser.add_argument('--test-interval', type=int, default=1)
+parser.add_argument('--device', type=str, default="cuda:0")
 # parser.add_argument('--seed', type=int, default=42)
 
 parser.add_argument('--lora-r', type=int, default=16, help="The dimension used by the LoRA update matrices")
