@@ -28,6 +28,8 @@ parser.add_argument('--lora-alpha', type=int, default=16, help="scaling factor")
 parser.add_argument('--lora-dropout', type=float, default=0.1)
 parser.add_argument('--lora-bias', type=str, default="none", help="if bias params should be trained or not")
 
+parser.add_argument('-expt', '--expt-type', type=str, default=None) # TODO : can also be "FShotTuning"
+
 parser.add_argument('-d', '--data', type=str, default='oxfordpet')
 parser.add_argument('-ddir', '--data-dir', type=str, default='./data')
 parser.add_argument('-odir', '--output-dir', type=str, default='./output')
@@ -63,7 +65,11 @@ testloader = torch.utils.data.DataLoader(
 start_time = time.time()
 
 model = ViT_LoRA(args, use_LoRA=True)
-model.fit(args, trainloader, testloader)
+if args.expt_type == 'KLDivLoss':
+    model_pretrained = ViT_LoRA(args, use_LoRA=False)
+    model.fit(args, trainloader, testloader, model_pretrained)
+else:
+    model.fit(args, trainloader, testloader)
 
 end_time = time.time()
 
