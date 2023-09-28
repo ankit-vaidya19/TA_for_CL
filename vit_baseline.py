@@ -27,7 +27,9 @@ class ViT_LoRA(nn.Module):
         self.device = args.device
         
         print(self.device)
+
         if self.use_LoRA:
+            # instantiate LoRA_ViT model
             self.ViT = ViTModel.from_pretrained(self.model_name)
             self.linear = nn.Linear(768, args.num_classes)
             self.config = LoraConfig(
@@ -44,8 +46,12 @@ class ViT_LoRA(nn.Module):
             self.ViT = ViTModel.from_pretrained(self.model_name)
             self.linear = nn.Linear(768, args.num_classes)
             self.print_trainable_parameters()
+
         self.ViT.to(self.device)
         self.linear.to(self.device)
+        
+        # for KL divergence loss
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         x = self.ViT(x).pooler_output
@@ -68,11 +74,13 @@ class ViT_LoRA(nn.Module):
         acc = np.sum((true == pred).astype(np.float32)) / len(true)
         return acc * 100
 
-    def fit(self, args, train_loader, test_loader):
+    def fit(self, args, train_loader, test_loader, ViT_prtn=None):
         optim = torch.optim.Adam(
             params=self.parameters(), lr=args.lr, weight_decay=args.weight_decay
         )
         criterion = nn.CrossEntropyLoss()
+        if ViT_prtn:
+            criterion_kldiv = nn.KLDivLoss()
         self.train()
 
         best_test_acc = -np.inf
@@ -86,16 +94,30 @@ class ViT_LoRA(nn.Module):
                 imgs = torch.Tensor(batch[0]).to(self.device)
                 labels = torch.Tensor(batch[1]).to(self.device)
                 scores = self(imgs)
-                loss = criterion(scores, labels)
+
+                # loss calculation
+                if ViT_prtn:
+                    ViT_prtn.eval()
+                    scores_prtn = ViT_prtn(imgs)
+                    print(self.softmax(scores), self.softmax(scores_prtn))
+                    loss_kldiv = criterion_kldiv(self.softmax(scores), self.softmax(scores_prtn))
+                    # print("\nKLDIV : ", loss_kldiv)
+                    loss = criterion(scores, labels)
+                    print("Loss: ", loss_kldiv, loss, loss_kldiv+loss)
+                    loss = 0.5*loss_kldiv + 0.5*loss
+                else:
+                    loss = criterion(scores, labels)
+
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
+                
                 train_loss.append(loss.detach().cpu().numpy())
                 train_labels.append(batch[1])
                 train_preds.append(scores.argmax(dim=-1))
             loss = sum(train_loss)/len(train_loss)
             acc = self.accuracy(torch.concat(train_labels, dim=0).cpu(),torch.concat(train_preds, dim=0).cpu())
-            print(f"\tTrain\tLoss - {round(loss, 3)}",'\t',f"Accuracy - {round(acc, 3)}")
+            print(f"\tTrain\tLoss : {round(loss, 3)}",'\t',f"Accuracy : {round(acc, 3)}")
 
             if (epoch+1) % args.test_interval == 0:
                 test_loss, test_acc = self.test(test_loader)
@@ -131,6 +153,6 @@ class ViT_LoRA(nn.Module):
                 test_preds.append(scores.argmax(dim=-1))
             loss = sum(test_loss)/len(test_loss)
             acc = self.accuracy(torch.concat(test_labels, dim=0).cpu(),torch.concat(test_preds, dim=0).cpu())
-            print(f"\tTest:\tLoss - {round(loss, 3)}",'\t',f"Accuracy - {round(acc,3)}")
+            print(f"\tTest:\tLoss : {round(loss, 3)}",'\t',f"Accuracy : {round(acc,3)}")
             
             return loss, acc
