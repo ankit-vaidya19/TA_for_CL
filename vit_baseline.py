@@ -99,7 +99,7 @@ class ViT_LoRA(nn.Module):
                 if ViT_prtn:
                     ViT_prtn.eval()
                     scores_prtn = ViT_prtn(imgs)
-                    print(self.softmax(scores), self.softmax(scores_prtn))
+                    # print(self.softmax(scores), self.softmax(scores_prtn))
                     loss_kldiv = criterion_kldiv(self.softmax(scores), self.softmax(scores_prtn))
                     # print("\nKLDIV : ", loss_kldiv)
                     loss = criterion(scores, labels)
