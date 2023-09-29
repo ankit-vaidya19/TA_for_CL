@@ -50,6 +50,7 @@ class ViT_LoRA(nn.Module):
         self.ViT.to(self.device)
         self.linear.to(self.device)
         
+        #https://discuss.pytorch.org/t/kl-divergence-produces-negative-values/16791/16
         # for KL divergence loss
         self.softmax = nn.Softmax(dim=1)
 
@@ -80,7 +81,7 @@ class ViT_LoRA(nn.Module):
         )
         criterion = nn.CrossEntropyLoss()
         if ViT_prtn:
-            criterion_kldiv = nn.KLDivLoss()
+            criterion_kldiv = nn.KLDivLoss(size_average=False)
         self.train()
 
         best_test_acc = -np.inf
@@ -99,12 +100,12 @@ class ViT_LoRA(nn.Module):
                 if ViT_prtn:
                     ViT_prtn.eval()
                     scores_prtn = ViT_prtn(imgs)
-                    print(self.softmax(scores), self.softmax(scores_prtn))
-                    loss_kldiv = criterion_kldiv(self.softmax(scores_prtn), self.softmax(scores))
-                    print("\nKLDIV : ", loss_kldiv)
+                    # print(self.softmax(scores_prtn),"\n", self.softmax(scores))
+                    loss_kldiv = criterion_kldiv(self.softmax(scores_prtn).log(), self.softmax(scores))
+                    # print("\nKLDIV : ", loss_kldiv)
                     loss = criterion(scores, labels)
-                    print("Loss: ", loss_kldiv, loss, loss_kldiv+loss)
-                    loss = 0.5*loss_kldiv + 0.5*loss
+                    # print("Loss: ", loss_kldiv, loss)
+                    loss = 0.4*loss_kldiv + 0.6*loss
                 else:
                     loss = criterion(scores, labels)
 
