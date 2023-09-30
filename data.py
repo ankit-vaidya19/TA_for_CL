@@ -357,22 +357,26 @@ class FewShotDataset():
                 img_label = labels[img_id-1]
 
                 if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
-                    
+                    self.train_imgs.append(img_path)
+                    self.train_labels.append(self.label2int[img_label])
+                    label_freqs[self.label2int[img_label]] += 1
+
+                if sum(label_freqs) == self.num_classes * self.n_samples:
+                    print("Total training samples : ", len(self.train_labels))
+                    break
 
 
+            # for img_id in x_train:
+            #     img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
+            #     img_label = labels[img_id-1]
+            #     self.train_imgs.append(img_path)
+            #     self.train_labels.append(self.label2int[img_label])
 
-
-            for img_id in x_train:
-                img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
-                img_label = labels[img_id-1]
-                self.train_imgs.append(img_path)
-                self.train_labels.append(self.label2int[img_label])
-
-            for img_id in x_val:
-                img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
-                img_label = labels[img_id-1]
-                self.train_imgs.append(img_path)
-                self.train_labels.append(self.label2int[img_label])
+            # for img_id in x_val:
+            #     img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
+            #     img_label = labels[img_id-1]
+            #     self.train_imgs.append(img_path)
+            #     self.train_labels.append(self.label2int[img_label])
             
             # testset lists
             for img_id in x_test:
