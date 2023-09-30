@@ -7,6 +7,7 @@ from torch.utils.data import Dataset
 import numpy as np
 import scipy.io as sio
 import cv2
+import random
 
 # How to call the loader:
 """
@@ -221,7 +222,7 @@ class FewShotDataset():
         self.train_imgs, self.train_labels = [],[]
         self.test_imgs, self.test_labels = [],[]
         self.get_lists()
-        get_n_samples_per_class()
+        self.get_n_samples_per_class()
         print(f"\nINFO: Taken {self.args.n_samples} samples for every class.")
 
     def get_label2int(self):
@@ -235,6 +236,9 @@ class FewShotDataset():
         return label2int
 
     def get_lists(self):
+
+        label_freqs = [0 for i in range(self.num_classes)]
+        
         if self.args.data == 'oxfordpet':
             oxfordpet = datasets.OxfordIIITPet(root=self.args.data_dir, download=True)
 
@@ -242,11 +246,26 @@ class FewShotDataset():
             with open(f'{self.args.data_dir}/oxford-iiit-pet/annotations/trainval.txt', 'r') as f_train:
                 lines = f_train.readlines()
                 # print(lines)
-                for img in lines:
+
+                while True:
+                    img = random.choice(lines)
                     img_name = img.split(' ')[0]
                     img_label = img_name.rsplit('_', 1)[0]
-                    self.train_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
-                    self.rain_labels.append(self.label2int[img_label])
+
+                    if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
+                        self.train_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
+                        self.train_labels.append(self.label2int[img_label])
+                        label_freqs[self.label2int[img_label]] += 1
+                    
+                    if sum(label_freqs) == self.num_classes * self.n_samples:
+                        print("Total training samples : ", len(self.train_labels))
+                        break
+
+                # for img in lines: 
+                #     img_name = img.split(' ')[0]
+                #     img_label = img_name.rsplit('_', 1)[0]
+                #     self.train_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
+                #     self.train_labels.append(self.label2int[img_label])
 
             #testset lists
             with open(f'{self.args.data_dir}/oxford-iiit-pet/annotations/test.txt', 'r') as f_test:
@@ -276,14 +295,30 @@ class FewShotDataset():
             #for trainlist
             dest_dir = f'{self.args.data_dir}/train'
             os.makedirs(dest_dir, exist_ok=True)
-            
-            for idx in range(len(y_train)):
-                img = x_train[:,:,:,idx]
-                img_path = f'{dest_dir}/{idx}.jpg'
+
+            while True:
+                idx = random.choice([i for i in range(len(y_train))])
                 img_label = y_train.flat[idx]
-                cv2.imwrite(img_path, img)
-                self.train_imgs.append(img_path)
-                self.train_labels.append(img_label)
+
+                if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
+                    img = x_train[:,:,:,idx]
+                    img_path = f'{dest_dir}/{idx}.jpg'
+                    cv2.imwrite(img_path, img)
+                    self.train_imgs.append(img_path)
+                    self.train_labels.append(img_label)
+                    label_freqs[self.label2int[img_label]] += 1
+                    
+                if sum(label_freqs) == self.num_classes * self.n_samples:
+                    print("Total training samples : ", len(self.train_labels))
+                    break
+
+            # for idx in range(len(y_train)):
+            #     img = x_train[:,:,:,idx]
+            #     img_path = f'{dest_dir}/{idx}.jpg'
+            #     img_label = y_train.flat[idx]
+            #     cv2.imwrite(img_path, img)
+            #     self.train_imgs.append(img_path)
+            #     self.train_labels.append(img_label)
             
             #for testlist
             dest_dir = f'{self.args.data_dir}/test'
@@ -313,6 +348,20 @@ class FewShotDataset():
             x_test = data_splits['tstid'][0]
             
             # trainset lists
+            
+            x_train += x_val
+
+            while True:
+                img_id = random.choice(x_train)
+                img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
+                img_label = labels[img_id-1]
+
+                if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
+                    
+
+
+
+
             for img_id in x_train:
                 img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
                 img_label = labels[img_id-1]
