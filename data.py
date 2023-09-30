@@ -222,7 +222,6 @@ class FewShotDataset():
         self.train_imgs, self.train_labels = [],[]
         self.test_imgs, self.test_labels = [],[]
         self.get_lists()
-        self.get_n_samples_per_class()
         print(f"\nINFO: Taken {self.args.n_samples} samples for every class.")
 
     def get_label2int(self):
@@ -390,8 +389,6 @@ class FewShotDataset():
             # https://github.com/pytorch/vision/issues/7545#issuecomment-1575410733
             pass
     
-    def get_n_samples_per_class(self):
-        pass
 
     def get_datasets(self):
         print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ")

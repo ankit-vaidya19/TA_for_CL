@@ -75,7 +75,7 @@ class ViT_LoRA(nn.Module):
         acc = np.sum((true == pred).astype(np.float32)) / len(true)
         return acc * 100
 
-    def fit(self, args, train_loader, test_loader, ViT_prtn=None):
+    def fit(self, args, train_loader, test_loader=None, ViT_prtn=None):
         optim = torch.optim.Adam(
             params=self.parameters(), lr=args.lr, weight_decay=args.weight_decay
         )
@@ -120,20 +120,21 @@ class ViT_LoRA(nn.Module):
             acc = self.accuracy(torch.concat(train_labels, dim=0).cpu(),torch.concat(train_preds, dim=0).cpu())
             print(f"\tTrain\tLoss : {round(loss, 3)}",'\t',f"Accuracy : {round(acc, 3)}")
 
-            if (epoch+1) % args.test_interval == 0:
-                test_loss, test_acc = self.test(test_loader)
-                if test_acc > best_test_acc:
-                    patient_epochs = 0
-                    best_test_acc = test_acc
-                    print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
-                    torch.save(self.state_dict(), f"{args.output_dir}/vit_task_{args.tasknum}_best.pt")
-                else:
-                    patient_epochs += 1
-                
-            if patient_epochs == args.patience:
-                print("INFO: Accuracy has not increased in the last {} epochs.".format(args.patience))
-                print("INFO: Stopping the run and saving the best weights.")
-                break
+            if test_loader:
+                if (epoch+1) % args.test_interval == 0:
+                    test_loss, test_acc = self.test(test_loader)
+                    if test_acc > best_test_acc:
+                        patient_epochs = 0
+                        best_test_acc = test_acc
+                        print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
+                        torch.save(self.state_dict(), f"{args.output_dir}/vit_task_{args.tasknum}_best.pt")
+                    else:
+                        patient_epochs += 1
+                    
+                if patient_epochs == args.patience:
+                    print("INFO: Accuracy has not increased in the last {} epochs.".format(args.patience))
+                    print("INFO: Stopping the run and saving the best weights.")
+                    break
             print("--"*100)
                 
 

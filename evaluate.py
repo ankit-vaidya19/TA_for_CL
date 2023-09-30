@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from data import TaskDataset, task_dict
+from data import TaskDataset, task_dict, FewShotDataset
 from apply_ta import get_model
 
 from vit_baseline import ViT_LoRA
@@ -19,8 +19,8 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-
-parser.add_argument('-e', '--epochs', type=int, default=50)
+parser.add_argument('-nspc', '--n-samples', type=float, default=None)
+parser.add_argument('-e', '--epochs', type=int, default=10)
 parser.add_argument('-bs', '--batch-size', type=int, default=16)
 parser.add_argument('-lr', '--lr', type=float, default=5e-6)
 parser.add_argument('-wd', '--weight-decay', type=float, default=1e-6)
@@ -41,6 +41,7 @@ parser.add_argument('-midir', '--model-input-dir', type=str, default='./data')
 parser.add_argument('-t', '--tasknum', type=int)
 parser.add_argument('-tot', '--total-tasks', type=int)
 parser.add_argument('-scoef', '--scaling-coef', type=float, default=0.25)
+
 args = parser.parse_args()
 
 parser.add_argument('-nc', '--num-classes', type=int, default=None)
@@ -66,6 +67,31 @@ img_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224"
 pretrained_model = ViT_LoRA(args, use_LoRA=True)
 torch.save(pretrained_model, f"{args.output_dir}/vit_pretrained.pt")
 
+# get final model
+final_model = get_model(args, f"{args.output_dir}/vit_pretrained.pt", list_of_task_checkpoints=[f"{args.model_input_dir}/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=args.scaling_coef)
+
+if args.n_samples: # run only if want to train on n_samples of each class
+    fewshot_trainset, alltask_testset = FewShotDataset(args.data, args.data_dir, img_processor, args.n_samples).get_datasets()
+
+    fewshot_trainloader = torch.utils.data.DataLoader(
+            fewshot_trainset, batch_size=args.batch_size, shuffle=True,
+            num_workers=args.num_workers
+        )
+    
+    alltask_testloader = torch.utils.data.DataLoader(
+            alltask_testset, batch_size=args.batch_size, shuffle=False,
+            num_workers=args.num_workers
+        )
+
+    # finetune model on n_samples_per_class
+    print("\nINFO: Training FINAL_MODEL on {args.n_samples} samples of each class")
+    final_model.fit(args, fewshot_trainloader)
+
+    # test the model on entire dataset
+    print("\nINFO: Testing on entire testset (all tasks)")
+    final_model.test(alltask_testloader)
+
+# test the final model on task-wise testsets
 test_all_tasks = list()
 
 for task_idx in range(args.total_tasks):
@@ -82,10 +108,9 @@ for task_idx in range(args.total_tasks):
     print(f"Length of {task_idx}th test dataset", len(testset))
     test_all_tasks.append(testloader)
 
-final_model = get_model(args, f"{args.output_dir}/vit_pretrained.pt", list_of_task_checkpoints=[f"{args.model_input_dir}/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=args.scaling_coef)
 # print(final_model)
 for task_idx, loader in enumerate(test_all_tasks):
-    print(task_idx)
+    print(f"\nINFO: Testing on testset of TASK {task_idx}") 
     final_model.test(loader)
 
 torch.save(final_model, f"{args.output_dir}/resultant_model_{args.data}.pt")
