@@ -251,7 +251,7 @@ class FewShotDataset():
                     img_name = img.split(' ')[0]
                     img_label = img_name.rsplit('_', 1)[0]
 
-                    if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
+                    if label_freqs[self.label2int[img_label]]+1 <= self.n_samples:
                         self.train_imgs.append(f'{self.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
                         self.train_labels.append(self.label2int[img_label])
                         label_freqs[self.label2int[img_label]] += 1
@@ -299,7 +299,7 @@ class FewShotDataset():
                 idx = random.choice([i for i in range(len(y_train))])
                 img_label = y_train.flat[idx]
 
-                if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
+                if label_freqs[self.label2int[img_label]]+1 <= self.n_samples:
                     img = x_train[:,:,:,idx]
                     img_path = f'{dest_dir}/{idx}.jpg'
                     cv2.imwrite(img_path, img)
@@ -355,7 +355,7 @@ class FewShotDataset():
                 img_path = f'{self.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
                 img_label = labels[img_id-1]
 
-                if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
+                if label_freqs[self.label2int[img_label]]+1 <= self.n_samples:
                     self.train_imgs.append(img_path)
                     self.train_labels.append(self.label2int[img_label])
                     label_freqs[self.label2int[img_label]] += 1
