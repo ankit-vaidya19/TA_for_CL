@@ -19,7 +19,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('-nspc', '--n-samples', type=float, default=None)
+parser.add_argument('-nspc', '--n-samples', type=int, default=None)
 parser.add_argument('-e', '--epochs', type=int, default=10)
 parser.add_argument('-bs', '--batch-size', type=int, default=16)
 parser.add_argument('-lr', '--lr', type=float, default=5e-6)
