@@ -143,7 +143,7 @@ class TaskDataset():
             for idx in range(len(y_train)):
                 img = x_train[:,:,:,idx]
                 img_path = f'{dest_dir}/{idx}.jpg'
-                img_label = y_train.flat[idx]
+                img_label = y_train.flat[idx]-1
                 if str(img_label) in self.task_dict[self.args.tasknum]:
                     cv2.imwrite(img_path, img)
                     self.train_imgs.append(img_path)
@@ -156,7 +156,7 @@ class TaskDataset():
             for idx in range(len(y_test)):
                 img = x_test[:,:,:,idx]
                 img_path = f'{dest_dir}/{idx}.jpg'
-                img_label = y_test.flat[idx]
+                img_label = y_test.flat[idx]-1
                 if str(img_label) in self.task_dict[self.args.tasknum]:
                     cv2.imwrite(img_path, img)
                     self.test_imgs.append(img_path)
