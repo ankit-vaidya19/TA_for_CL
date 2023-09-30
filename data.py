@@ -222,7 +222,7 @@ class FewShotDataset():
         self.train_imgs, self.train_labels = [],[]
         self.test_imgs, self.test_labels = [],[]
         self.get_lists()
-        print(f"\nINFO: Taken {self.args.n_samples} samples for every class.")
+        print(f"\nINFO: Taken {self.n_samples} samples for every class.")
 
     def get_label2int(self):
         label2int = []
@@ -238,11 +238,11 @@ class FewShotDataset():
 
         label_freqs = [0 for i in range(self.num_classes)]
         
-        if self.args.data == 'oxfordpet':
-            oxfordpet = datasets.OxfordIIITPet(root=self.args.data_dir, download=True)
+        if self.data == 'oxfordpet':
+            oxfordpet = datasets.OxfordIIITPet(root=self.data_dir, download=True)
 
             #trainset lists
-            with open(f'{self.args.data_dir}/oxford-iiit-pet/annotations/trainval.txt', 'r') as f_train:
+            with open(f'{self.data_dir}/oxford-iiit-pet/annotations/trainval.txt', 'r') as f_train:
                 lines = f_train.readlines()
                 # print(lines)
 
@@ -252,7 +252,7 @@ class FewShotDataset():
                     img_label = img_name.rsplit('_', 1)[0]
 
                     if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
-                        self.train_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
+                        self.train_imgs.append(f'{self.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
                         self.train_labels.append(self.label2int[img_label])
                         label_freqs[self.label2int[img_label]] += 1
                     
@@ -267,32 +267,32 @@ class FewShotDataset():
                 #     self.train_labels.append(self.label2int[img_label])
 
             #testset lists
-            with open(f'{self.args.data_dir}/oxford-iiit-pet/annotations/test.txt', 'r') as f_test:
+            with open(f'{self.data_dir}/oxford-iiit-pet/annotations/test.txt', 'r') as f_test:
                 lines = f_test.readlines()
                 for img in lines:
                     img_name = img.split(' ')[0]
                     img_label = img_name.rsplit('_', 1)[0]
-                    self.test_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
+                    self.test_imgs.append(f'{self.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
                     self.test_labels.append(self.label2int[img_label])   
         
-        elif self.args.data == 'svhn':
-            trainset = datasets.SVHN(root=self.args.data_dir,
+        elif self.data == 'svhn':
+            trainset = datasets.SVHN(root=self.data_dir,
                             split='train', download=True,
                             transform=transforms.ToTensor())
-            testset = datasets.SVHN(root=self.args.data_dir,
+            testset = datasets.SVHN(root=self.data_dir,
                             split='test', download=True,
                             transform=transforms.ToTensor())
             
-            train_data = sio.loadmat(f'{self.args.data_dir}/train_32x32.mat')
+            train_data = sio.loadmat(f'{self.data_dir}/train_32x32.mat')
             x_train = train_data['X']
             y_train = train_data['y']
             
-            test_data = sio.loadmat(f'{self.args.data_dir}/test_32x32.mat')
+            test_data = sio.loadmat(f'{self.data_dir}/test_32x32.mat')
             x_test = test_data['X']
             y_test = test_data['y']
 
             #for trainlist
-            dest_dir = f'{self.args.data_dir}/train'
+            dest_dir = f'{self.data_dir}/train'
             os.makedirs(dest_dir, exist_ok=True)
 
             while True:
@@ -320,7 +320,7 @@ class FewShotDataset():
             #     self.train_labels.append(img_label)
             
             #for testlist
-            dest_dir = f'{self.args.data_dir}/test'
+            dest_dir = f'{self.data_dir}/test'
             os.makedirs(dest_dir, exist_ok=True)
             
             for idx in range(len(y_test)):
@@ -331,17 +331,17 @@ class FewShotDataset():
                 self.test_imgs.append(img_path)
                 self.test_labels.append(img_label)
        
-        elif self.args.data == 'oxfordflowers':
-            trainset = datasets.Flowers102(root=self.args.data_dir,
+        elif self.data == 'oxfordflowers':
+            trainset = datasets.Flowers102(root=self.data_dir,
                             split='train', download=True,
                             transform=transforms.ToTensor())
-            testset = datasets.Flowers102(root=self.args.data_dir,
+            testset = datasets.Flowers102(root=self.data_dir,
                             split='test', download=True,
                             transform=transforms.ToTensor())
 
-            labels = sio.loadmat(f'{self.args.data_dir}/flowers-102/imagelabels.mat')
+            labels = sio.loadmat(f'{self.data_dir}/flowers-102/imagelabels.mat')
             labels = labels['labels'][0]
-            data_splits = sio.loadmat(f'{self.args.data_dir}/flowers-102/setid.mat')
+            data_splits = sio.loadmat(f'{self.data_dir}/flowers-102/setid.mat')
             x_train = data_splits['trnid'][0]
             x_val = data_splits['valid'][0]
             x_test = data_splits['tstid'][0]
@@ -352,7 +352,7 @@ class FewShotDataset():
 
             while True:
                 img_id = random.choice(x_train)
-                img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
+                img_path = f'{self.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
                 img_label = labels[img_id-1]
 
                 if label_freqs[self.label2int[img_label]]+1 < self.n_samples:
@@ -379,7 +379,7 @@ class FewShotDataset():
             
             # testset lists
             for img_id in x_test:
-                img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
+                img_path = f'{self.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
                 img_label = labels[img_id-1]
                 self.test_imgs.append(img_path)
                 self.test_labels.append(self.label2int[img_label])
@@ -391,6 +391,5 @@ class FewShotDataset():
     
 
     def get_datasets(self):
-        print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ")
-        print("CLASSES : ", self.task_dict[self.args.tasknum])
+        print(f"INFO : Loading {self.data} TRAIN & TEST data ... ")
         return ImageDataset(self.train_imgs, self.train_labels, 'train', self.img_processor), ImageDataset(self.test_imgs, self.test_labels, 'test', self.img_processor)
