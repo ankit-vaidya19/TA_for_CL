@@ -58,7 +58,7 @@ ranges_of_classes = {
 }
 
 
-def get_model(args, pretrained_checkpoint, list_of_task_checkpoints, scaling_coef):
+def get_model(args, pretrained_checkpoint, list_of_task_checkpoints, scaling_coef, return_trainable=False):
     task_vector_list = [
         TaskVector(pretrained_checkpoint, task_checkpoint)
         for task_checkpoint in list_of_task_checkpoints
@@ -81,4 +81,7 @@ def get_model(args, pretrained_checkpoint, list_of_task_checkpoints, scaling_coe
         model.linear.bias[start_idx:end_idx] = taskwise_model.linear.bias[start_idx:end_idx]
         # print(model.linear.weight.shape)
         # print(model.linear.bias.shape)
+    if return_trainable:
+       for param in model.parameters():
+          param.requires_grad = True
     return model
