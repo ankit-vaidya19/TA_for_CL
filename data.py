@@ -38,14 +38,6 @@ task_dict = {'oxfordpet' : {0 : ['american_bulldog', 'scottish_terrier', 'englis
 
             }
 
-# label2int = {'oxfordpet' : {'american_bulldog': 0, 'scottish_terrier': 1, 'english_setter': 2, 'newfoundland': 3, 'Maine_Coon': 4, 'British_Shorthair': 5,
-#                              'Persian': 6, 'boxer': 7, 'english_cocker_spaniel': 8, 'saint_bernard': 9, 'Russian_Blue': 10, 'Bombay': 11, 'japanese_chin': 12,
-#                              'Sphynx': 13, 'german_shorthaired': 14, 'basset_hound': 15, 'samoyed': 16, 'shiba_inu': 17, 'staffordshire_bull_terrier': 18,
-#                              'Siamese': 19, 'wheaten_terrier': 20, 'Abyssinian': 21, 'keeshond': 22, 'havanese': 23, 'yorkshire_terrier': 24, 'Bengal': 25,
-#                              'great_pyrenees': 26, 'Egyptian_Mau': 27, 'pomeranian': 28, 'beagle': 29, 'american_pit_bull_terrier': 30, 
-#                              'Ragdoll': 31, 'miniature_pinscher': 32, 'pug': 33, 'Birman': 34, 'leonberger': 35, 'chihuahua': 36}
-#             }
-
 class ImageDataset(Dataset):
     def __init__(self, image_list, label_list, split, processor):
         super().__init__()
@@ -260,12 +252,6 @@ class FewShotDataset():
                         print("Total training samples : ", len(self.train_labels))
                         break
 
-                # for img in lines: 
-                #     img_name = img.split(' ')[0]
-                #     img_label = img_name.rsplit('_', 1)[0]
-                #     self.train_imgs.append(f'{self.args.data_dir}/oxford-iiit-pet/images/{img_name}.jpg')
-                #     self.train_labels.append(self.label2int[img_label])
-
             #testset lists
             with open(f'{self.data_dir}/oxford-iiit-pet/annotations/test.txt', 'r') as f_test:
                 lines = f_test.readlines()
@@ -310,14 +296,6 @@ class FewShotDataset():
                 if sum(label_freqs) == self.num_classes * self.n_samples:
                     print("Total training samples : ", len(self.train_labels))
                     break
-
-            # for idx in range(len(y_train)):
-            #     img = x_train[:,:,:,idx]
-            #     img_path = f'{dest_dir}/{idx}.jpg'
-            #     img_label = y_train.flat[idx]
-            #     cv2.imwrite(img_path, img)
-            #     self.train_imgs.append(img_path)
-            #     self.train_labels.append(img_label)
             
             #for testlist
             dest_dir = f'{self.data_dir}/test'
@@ -347,8 +325,6 @@ class FewShotDataset():
             x_test = data_splits['tstid'][0]
             
             # trainset lists
-            
-            x_train += x_val
 
             while True:
                 img_id = random.choice(x_train)
@@ -364,18 +340,6 @@ class FewShotDataset():
                     print("Total training samples : ", len(self.train_labels))
                     break
 
-
-            # for img_id in x_train:
-            #     img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
-            #     img_label = labels[img_id-1]
-            #     self.train_imgs.append(img_path)
-            #     self.train_labels.append(self.label2int[img_label])
-
-            # for img_id in x_val:
-            #     img_path = f'{self.args.data_dir}/flowers-102/jpg/image_{str(img_id).zfill(5)}.jpg'
-            #     img_label = labels[img_id-1]
-            #     self.train_imgs.append(img_path)
-            #     self.train_labels.append(self.label2int[img_label])
             
             # testset lists
             for img_id in x_test:
