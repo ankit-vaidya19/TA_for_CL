@@ -297,7 +297,7 @@ class FewShotDataset():
 
             while True:
                 idx = random.choice([i for i in range(len(y_train))])
-                img_label = y_train.flat[idx]
+                img_label = str(y_train.flat[idx] - 1)
 
                 if label_freqs[self.label2int[img_label]]+1 <= self.n_samples:
                     img = x_train[:,:,:,idx]
