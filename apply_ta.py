@@ -68,20 +68,27 @@ def get_model(args, pretrained_checkpoint, list_of_task_checkpoints, scaling_coe
     
     for param in model.parameters():
         param.requires_grad = False
-    for task_idx, ckpt in enumerate(sorted(list_of_task_checkpoints)):
-        finetuned_weights = torch.load(ckpt)
-        # task_model = ViT_LoRA(args, use_)
-        
-        taskwise_model = ViT_LoRA(args, use_LoRA=True)
-        taskwise_model.load_state_dict(finetuned_weights)
-        # print(taskwise_model.linear.weight.shape)
-        start_idx = ranges_of_classes[args.data][task_idx][0]
-        end_idx = ranges_of_classes[args.data][task_idx][1]
-        model.linear.weight[start_idx:end_idx , :] = taskwise_model.linear.weight[start_idx:end_idx , :]
-        model.linear.bias[start_idx:end_idx] = taskwise_model.linear.bias[start_idx:end_idx]
-        # print(model.linear.weight.shape)
-        # print(model.linear.bias.shape)
+
+    model.eval()
+    with torch.no_grad():
+        for task_idx, ckpt in enumerate(sorted(list_of_task_checkpoints)):
+            finetuned_weights = torch.load(ckpt)
+            # task_model = ViT_LoRA(args, use_)
+            
+            taskwise_model = ViT_LoRA(args, use_LoRA=True)
+            taskwise_model.load_state_dict(finetuned_weights)
+            taskwise_model.eval()
+            
+            for param in taskwise_model.parameters():
+                param.requires_grad = False
+            # print(taskwise_model.linear.weight.shape)
+            start_idx = ranges_of_classes[args.data][task_idx][0]
+            end_idx = ranges_of_classes[args.data][task_idx][1]
+            model.linear.weight[start_idx:end_idx , :] = taskwise_model.linear.weight[start_idx:end_idx , :]
+            model.linear.bias[start_idx:end_idx] = taskwise_model.linear.bias[start_idx:end_idx]
+            # print(model.linear.weight.shape)
+            # print(model.linear.bias.shape)
     if return_trainable:
-       for param in model.parameters():
-          param.requires_grad = True
+        for param in model.parameters():
+            param.requires_grad = True
     return model
