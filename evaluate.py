@@ -68,7 +68,7 @@ pretrained_model = ViT_LoRA(args, use_LoRA=True)
 torch.save(pretrained_model, f"{args.output_dir}/vit_pretrained.pt")
 
 # get final model
-final_model = get_model(args, f"{args.output_dir}/vit_pretrained.pt", list_of_task_checkpoints=[f"{args.model_input_dir}/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=args.scaling_coef)
+final_model = get_model(args, f"{args.output_dir}/vit_pretrained.pt", list_of_task_checkpoints=[f"{args.model_input_dir}/vit_task_{i}_best.pt" for i in range(args.total_tasks)], scaling_coef=args.scaling_coef, return_trainable=True)
 
 if args.n_samples: # run only if want to train on n_samples of each class
     fewshot_trainset, alltask_testset = FewShotDataset(args.data, args.data_dir, img_processor, args.n_samples).get_datasets()
