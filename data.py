@@ -304,7 +304,7 @@ class FewShotDataset():
             for idx in range(len(y_test)):
                 img = x_test[:,:,:,idx]
                 img_path = f'{dest_dir}/{idx}.jpg'
-                img_label = y_test.flat[idx]
+                img_label = y_test.flat[idx] - 1
                 cv2.imwrite(img_path, img)
                 self.test_imgs.append(img_path)
                 self.test_labels.append(img_label)
