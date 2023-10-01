@@ -283,15 +283,15 @@ class FewShotDataset():
 
             while True:
                 idx = random.choice([i for i in range(len(y_train))])
-                img_label = str(y_train.flat[idx] - 1)
+                img_label = y_train.flat[idx] - 1
 
-                if label_freqs[self.label2int[img_label]]+1 <= self.n_samples:
+                if label_freqs[img_label]+1 <= self.n_samples:
                     img = x_train[:,:,:,idx]
                     img_path = f'{dest_dir}/{idx}.jpg'
                     cv2.imwrite(img_path, img)
                     self.train_imgs.append(img_path)
                     self.train_labels.append(img_label)
-                    label_freqs[self.label2int[img_label]] += 1
+                    label_freqs[img_label] += 1
                     
                 if sum(label_freqs) == self.num_classes * self.n_samples:
                     print("Total training samples : ", len(self.train_labels))
