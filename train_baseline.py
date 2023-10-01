@@ -62,9 +62,8 @@ elif args.data == "svhn":
         split="train",
         download=True,
         transform=transforms.Compose(
-            [
-                transforms.RandomResizedCrop(processor.size["height"]),
-                transforms.RandomHorizontalFlip(),
+            [    
+                transforms.Resize(processor.size["height"]),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=processor.image_mean, std=processor.image_std),
             ]
@@ -78,7 +77,6 @@ elif args.data == "svhn":
         transform=transforms.Compose(
             [
                 transforms.Resize(processor.size["height"]),
-                transforms.CenterCrop(processor.size["height"]),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=processor.image_mean, std=processor.image_std),
             ]
