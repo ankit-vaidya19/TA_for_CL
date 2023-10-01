@@ -137,7 +137,11 @@ test_loader = DataLoader(
 
 if args.use_lora:
     print("\nINFO: Using LoRA")
-
+    args.use_lora = True
+else:
+    print("\nINFO: NOT using LoRA")
+    args.use_lora = False
+    
 model = ViT_LoRA(args , use_LoRA=args.use_lora)
 model.fit(args, train_loader, test_loader)
 model.test(test_loader)
