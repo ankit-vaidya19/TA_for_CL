@@ -432,7 +432,7 @@ class FewShotDataset():
         elif self.data == 'stanfordcars':
             # https://www.kaggle.com/datasets/jutrera/stanford-car-dataset-by-classes-folder
 
-            class_names_list = os.listdir(f'{self.args.data_dir}/car_data/car_data/train')
+            class_names_list = os.listdir(f'{self.data_dir}/car_data/car_data/train')
 
             # for trainlist
             for class_name in class_names_list:
