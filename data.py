@@ -429,10 +429,30 @@ class FewShotDataset():
                 self.test_imgs.append(img_path)
                 self.test_labels.append(self.label2int[img_label])
 
-        else:
-            # Download link for StanfordCars dataset is down 
-            # https://github.com/pytorch/vision/issues/7545#issuecomment-1575410733
-            pass
+        elif self.args.data == 'stanfordcars':
+            # https://www.kaggle.com/datasets/jutrera/stanford-car-dataset-by-classes-folder
+
+            class_names_list = os.listdir(f'{self.args.data_dir}/car_data/car_data/train')
+
+            # for trainlist
+            for class_name in class_names_list:
+                class_dir = f'{self.args.data_dir}/car_data/car_data/train/{class_name}'
+                img_paths = random.sample(glob.glob(f'{class_dir}/*.jpg'), self.n_samples)
+                img_labels = [self.label2int[class_name] for i in range(len(img_paths))]
+                self.train_imgs += img_paths
+                self.train_labels += img_labels
+            assert len(self.train_imgs) == len(self.train_labels)
+
+            # for testlist
+
+            for class_name in class_names_list:
+                class_dir = f'{self.args.data_dir}/car_data/car_data/test/{class_name}'
+                img_paths = glob.glob(f'{class_dir}/*.jpg')
+                img_labels = [self.label2int[class_name] for i in range(len(img_paths))]
+                self.test_imgs += img_paths
+                self.test_labels += img_labels
+            assert len(self.test_imgs) == len(self.test_labels)
+
     
 
     def get_datasets(self):
