@@ -257,10 +257,25 @@ class TaskDataset():
         elif self.args.data == 'stanfordcars':
             # https://www.kaggle.com/datasets/jutrera/stanford-car-dataset-by-classes-folder
 
-            class_names = os.listdir(f'{self.args.data_dir}/car_data/car_data/test/')
+            # for trainlist
+            for class_name in self.task_dict[self.args.tasknum]:
+                class_dir = f'{self.args.data_dir}/car_data/car_data/train/{class_name}'
+                img_paths = glob.glob(f'{class_dir}/*.jpg')
+                img_labels = [self.label2int[class_name] for i in range(len(img_paths))]
+                self.train_imgs += img_paths
+                self.train_labels += img_labels
+            assert len(self.train_imgs) == len(self.train_labels)
+
+            # for testlist
+            for class_name in self.task_dict[self.args.tasknum]:
+                class_dir = f'{self.args.data_dir}/car_data/car_data/test/{class_name}'
+                img_paths = glob.glob(f'{class_dir}/*.jpg')
+                img_labels = [self.label2int[class_name] for i in range(len(img_paths))]
+                self.test_imgs += img_paths
+                self.test_labels += img_labels
+            assert len(self.test_imgs) == len(self.test_labels)
 
 
-            pass
 
     def get_datasets(self):
         print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ")
