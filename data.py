@@ -36,7 +36,7 @@ task_dict = {'oxfordpet' : {0 : ['american_bulldog', 'scottish_terrier', 'englis
                                 8 : [x for x in range(81,91)], 9 : [x for x in range(91, 103)]
                             },
             
-            'stafordcars' : {   0 : [ 'Dodge Ram Pickup 3500 Crew Cab 2010','Cadillac CTS-V Sedan 2012', 'Audi S5 Convertible 2012',
+            'stanfordcars' : {   0 : [ 'Dodge Ram Pickup 3500 Crew Cab 2010','Cadillac CTS-V Sedan 2012', 'Audi S5 Convertible 2012',
                                     'Ram C-V Cargo Van Minivan 2012', 'smart fortwo Convertible 2012', 'Audi V8 Sedan 1994', 'Suzuki Kizashi Sedan 2012',
                                     'Chevrolet Express Van 2007', 'Chrysler Town and Country Minivan 2012', 'Rolls-Royce Phantom Sedan 2012','Suzuki SX4 Hatchback 2012', 
                                     'Lamborghini Aventador Coupe 2012', 'Chevrolet Silverado 1500 Classic Extended Cab 2007', 'Ford F-450 Super Duty Crew Cab 2012', 'Hyundai Veloster Hatchback 2012',
