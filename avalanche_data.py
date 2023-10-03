@@ -33,18 +33,45 @@ class ViT_basic(nn.Module):
         )
 
 class CustomDataset():
-    def __init__(self, args):
+    def __init__(self, args, processor):
         self.args = args
-        self.trainset = datasets.OxfordIIITPet(root=args.data_dir, split='trainval', download=True, transform=transforms.ToTensor())
-        self.testset = datasets.OxfordIIITPet(root=args.data_dir, split='test', download=True, transform=transforms.ToTensor())
-        self.trainset.targets = self.trainset._labels
-        self.testset.targets = self.testset._labels
+        self.train_transform =  transforms.Compose([
+                                transforms.RandomResizedCrop(processor.size["height"]),
+                                transforms.RandomHorizontalFlip(),
+                                transforms.ToTensor(),
+                                transforms.Normalize(mean=processor.image_mean, std=processor.image_std)
+                                ]) 
+        self.test_transform = transforms.Compose([transforms.Resize(processor.size["height"]),
+                                transforms.CenterCrop(processor.size["height"]),
+                                transforms.ToTensor(),
+                                transforms.Normalize(mean=processor.image_mean, std=processor.image_std)
+                                ])
+        self.set_data_variables()
 
-        self.task_dict = {0:6, 1:6, 2:6, 3:6, 4:6, 5:7}
-    
+    def set_data_variables(self):
+        if self.args.data == 'oxfordpet':
+            self.trainset = datasets.OxfordIIITPet(root=self.args.data_dir, split='trainval', download=True, transform=self.train_transform)
+            self.testset = datasets.OxfordIIITPet(root=self.args.data_dir, split='test', download=True, transform=self.test_transform)
+            self.trainset.targets = self.trainset._labels
+            self.testset.targets = self.testset._labels
+            self.task_dict = {0:6, 1:6, 2:6, 3:6, 4:6, 5:7}
+        
+        elif self.args.data == 'oxfordflowers':
+            self.trainset = datasets.Flowers102(root=self.args.data_dir, split='train', download=True, transform=self.train_transform)
+            self.testset = datasets.Flowers102(root=self.args.data_dir, split='test', download=True, transform=self.test_transform)
+            self.trainset.targets = self.trainset._labels
+            self.testset.targets = self.testset._labels
+            self.task_dict = {0:10, 1:10, 2:10, 3:10, 4:10, 5:10, 6:10, 7:10, 8:10, 9:12}
+        
+        elif self.args.data == 'stanfordcars':
+            self.task_dict = {0:19, 1:19, 2:19, 3:19, 4:20, 5:20, 6:20, 7:20, 8:20, 9:20}
+            pass
+        else:
+            ValueError()
+            
     def get_scenario(self):
         scenario = nc_benchmark(
-            self.trainset, self.testset, n_experiences=6, per_exp_classes=self.task_dict, shuffle=True, seed=1234,
+            self.trainset, self.testset, n_experiences=len(self.task_dict), per_exp_classes=self.task_dict, shuffle=True, seed=1234,
             task_labels=True
         )
         print("Trainset : ", len(self.trainset), "Testset : ", len(self.testset))
