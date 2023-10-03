@@ -82,7 +82,8 @@ if args.strategy == 'replay':
 elif args.strategy == 'agem':
     cl_strategy = AGEM(
         model, optimizer, criterion,
-        train_mb_size=args.batch_size, train_epochs=args.epochs, eval_mb_size=args.batch_size, evaluator=eval_plugin, device=args.device
+        train_mb_size=args.batch_size, train_epochs=args.epochs, eval_mb_size=args.batch_size, evaluator=eval_plugin, device=args.device,
+        patterns_per_exp = 100
     )
 elif args.strategy == 'ewc':
     cl_strategy = EWC(
