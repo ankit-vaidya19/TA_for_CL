@@ -94,7 +94,7 @@ if args.n_samples: # run only if want to train on n_samples of each class
         )
 
     # finetune model on n_samples_per_class
-    print("\nINFO: Training FINAL_MODEL on {args.n_samples} samples of each class")
+    print(f"\nINFO: Training FINAL_MODEL on {args.n_samples} samples of each class")
     final_model.fit(args, fewshot_trainloader)
 
     # test the model on entire dataset

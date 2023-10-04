@@ -287,8 +287,8 @@ class TaskDataset():
             assert len(self.test_imgs) == len(self.test_labels)
         
         elif self.args.data == 'cifar10':
-            trainset = datasets.CIFAR10(root=self.args.data_dir, train=True, download=True, transform=transforms.ToTensor())
-            testset = datasets.CIFAR10(root=self.args.data_dir, train=False, download=True, transform=transforms.ToTensor())
+            trainset = datasets.CIFAR10(root=self.args.data_dir, train=True, download=True)
+            testset = datasets.CIFAR10(root=self.args.data_dir, train=False, download=True)
 
             # for trainlist
             for img, label in trainset:
@@ -304,7 +304,7 @@ class TaskDataset():
                     self.test_labels.append(label)
 
     def get_datasets(self):
-        print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ")
+        print(f"INFO : Loading {self.data} TRAIN : {len(self.train_labels)} & TEST : {len(self.test_labels)} data for TASK {self.args.tasknum} ... ")
         print("CLASSES : ", self.task_dict[self.args.tasknum])
         return ImageDataset(self.train_imgs, self.train_labels, 'train', self.img_processor), ImageDataset(self.test_imgs, self.test_labels, 'test', self.img_processor)
 
@@ -481,8 +481,8 @@ class FewShotDataset():
             assert len(self.test_imgs) == len(self.test_labels)
 
         elif self.data == 'cifar10':
-            trainset = datasets.CIFAR10(root=self.data_dir, train=True, download=True, transform=transforms.ToTensor())
-            testset = datasets.CIFAR10(root=self.data_dir, train=False, download=True, transform=transforms.ToTensor())
+            trainset = datasets.CIFAR10(root=self.data_dir, train=True, download=True)
+            testset = datasets.CIFAR10(root=self.data_dir, train=False, download=True)
 
             # for trainlist
             for img, label in trainset:
@@ -514,5 +514,5 @@ class FewShotDataset():
     
 
     def get_datasets(self):
-        print(f"INFO : Loading {self.data} TRAIN & TEST data ... ")
+        print(f"INFO : Loading {self.data} TRAIN : {len(self.train_labels)} & TEST : {len(self.test_labels)} data ... ")
         return ImageDataset(self.train_imgs, self.train_labels, 'train', self.img_processor), ImageDataset(self.test_imgs, self.test_labels, 'test', self.img_processor)
