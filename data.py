@@ -96,7 +96,15 @@ task_dict = {'oxfordpet' : {0 : ['american_bulldog', 'scottish_terrier', 'englis
                                         'Dodge Caravan Minivan 1997', 'Bentley Continental Flying Spur Sedan 2007', 'Cadillac SRX SUV 2012', 'Maybach Landaulet Convertible 2012',
                                         'FIAT 500 Convertible 2012', 'Bentley Arnage Sedan 2009', 'BMW X3 SUV 2012','Hyundai Tucson SUV 2012']
                             
-            }  
+            },
+
+            'cifar10' : {   0 : [0, 1], 
+                            1 : [2, 3],
+                            2 : [4, 5], 
+                            3 : [6, 7], 
+                            4 : [8, 9] }
+
+
   
 
 }
@@ -125,7 +133,10 @@ class ImageDataset(Dataset):
         return len(self.label_list)
 
     def __getitem__(self, idx):
-        img = self.transform(Image.open(self.image_list[idx]).convert('RGB'))
+        if isinstance(self.image_list[idx], str):
+            img = self.transform(Image.open(self.image_list[idx]).convert('RGB'))
+        else:
+            img = self.transform(self.image_list[idx])
         label = self.label_list[idx]
         return img, label
 
@@ -274,8 +285,23 @@ class TaskDataset():
                 self.test_imgs += img_paths
                 self.test_labels += img_labels
             assert len(self.test_imgs) == len(self.test_labels)
+        
+        elif self.args.data == 'cifar10':
+            trainset = datasets.CIFAR10(root=self.args.data_dir, train=True, download=True, transform=transforms.ToTensor())
+            testset = datasets.CIFAR10(root=self.args.data_dir, train=False, download=True, transform=transforms.ToTensor())
 
+            # for trainlist
+            for img, label in trainset:
+                if label in self.task_dict[self.args.tasknum]:
+                    self.train_imgs.append(img)
+                    self.train_labels.append(label)
 
+    
+            # for trainlist
+            for img, label in testset:
+                if label in self.task_dict[self.args.tasknum]:
+                    self.test_imgs.append(img)
+                    self.test_labels.append(label)
 
     def get_datasets(self):
         print(f"INFO : Loading {self.args.data} TRAIN & TEST data for TASK {self.args.tasknum} ... ")
@@ -454,6 +480,37 @@ class FewShotDataset():
                 self.test_labels += img_labels
             assert len(self.test_imgs) == len(self.test_labels)
 
+        elif self.data == 'cifar10':
+            trainset = datasets.CIFAR10(root=self.data_dir, train=True, download=True, transform=transforms.ToTensor())
+            testset = datasets.CIFAR10(root=self.data_dir, train=False, download=True, transform=transforms.ToTensor())
+
+            # for trainlist
+            for img, label in trainset:
+                if label in self.task_dict[self.args.tasknum]:
+                    self.train_imgs.append(img)
+                    self.train_labels.append(label)
+
+            while True:
+                img, img_label = random.choice(trainset)
+                # img_label = y_train.flat[idx] - 1
+
+                if label_freqs[img_label]+1 <= self.n_samples:
+                    # img = x_train[:,:,:,idx]
+                    # img_path = f'{dest_dir}/{idx}.jpg'
+                    # cv2.imwrite(img_path, img)
+                    self.train_imgs.append(img)
+                    self.train_labels.append(img_label)
+                    label_freqs[img_label] += 1
+                    
+                if sum(label_freqs) == self.num_classes * self.n_samples:
+                    print("Total training samples : ", len(self.train_labels))
+                    break
+    
+            # for trainlist
+            for img, label in testset:
+                # if label in self.task_dict[self.args.tasknum]:
+                self.test_imgs.append(img)
+                self.test_labels.append(label)
     
 
     def get_datasets(self):

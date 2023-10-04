@@ -83,7 +83,15 @@ task_dict = {'oxfordpet' : {0 : ['american_bulldog', 'scottish_terrier', 'englis
                                         'Dodge Caravan Minivan 1997', 'Bentley Continental Flying Spur Sedan 2007', 'Cadillac SRX SUV 2012', 'Maybach Landaulet Convertible 2012',
                                         'FIAT 500 Convertible 2012', 'Bentley Arnage Sedan 2009', 'BMW X3 SUV 2012','Hyundai Tucson SUV 2012']
                             
-            }  
+            }  ,
+
+            'cifar10' : {   0 : [0, 1], 
+                            1 : [2, 3],
+                            2 : [4, 5], 
+                            3 : [6, 7], 
+                            4 : [8, 9] }
+
+
             }
 
 # for i in range(6):
@@ -121,7 +129,15 @@ ranges_of_classes = {
         4: (76, 96), 5: (96, 116),
         6: (116, 136), 7: (136, 156),
         8: (156, 176), 9: (176, 196),                        
-    }
+    },
+    
+    "cifar10": {
+        0: (0, 2),
+        1: (2, 4),
+        2: (4, 6),
+        3: (6, 8),
+        4: (8, 10),
+    },
 
 }
 

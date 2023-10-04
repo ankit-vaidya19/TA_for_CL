@@ -50,7 +50,7 @@ args = parser.parse_args()
 if args.num_classes == None:
     if args.data == 'oxfordpet':
         args.num_classes = 37
-    elif args.data == 'svhn':
+    elif args.data == 'svhn' or args.data == 'cifar10':
         args.num_classes = 10
     elif args.data == 'oxfordflowers':
         args.num_classes = 102
