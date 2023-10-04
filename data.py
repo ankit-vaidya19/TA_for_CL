@@ -304,7 +304,7 @@ class TaskDataset():
                     self.test_labels.append(label)
 
     def get_datasets(self):
-        print(f"INFO : Loading {self.data} TRAIN : {len(self.train_labels)} & TEST : {len(self.test_labels)} data for TASK {self.args.tasknum} ... ")
+        print(f"INFO : Loading {self.args.data} TRAIN : {len(self.train_labels)} & TEST : {len(self.test_labels)} data for TASK {self.args.tasknum} ... ")
         print("CLASSES : ", self.task_dict[self.args.tasknum])
         return ImageDataset(self.train_imgs, self.train_labels, 'train', self.img_processor), ImageDataset(self.test_imgs, self.test_labels, 'test', self.img_processor)
 
