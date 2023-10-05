@@ -17,13 +17,13 @@ parser.add_argument('-ddir', '--data-dir', type=str, default='../data')
 parser.add_argument('-odir', '--output-dir', type=str, default='./output')
 parser.add_argument('-bs','--batch_size',type = int,default = 32)
 parser.add_argument('-nw','--num_workers',type=int,default=2)
-parser.add_argument('-nc','--num_classes',type = int,default=10)
+parser.add_argument('-nc','--num_classes',type = int,default=None)
 parser.add_argument('-e', '--epochs', type=int, default=50)
 parser.add_argument('-lr', '--lr', type=float, default=5e-6)
 parser.add_argument('-wd', '--weight-decay', type=float, default=1e-6)
 parser.add_argument('--device', type=str, default="cuda:0")
 
-parser.add_argument('-lora','--use-lora', type=bool, default=None)
+parser.add_argument('-lora','--use-lora', type=bool, default=False)
 
 parser.add_argument('--lora-r', type=int, default=16, help="The dimension used by the LoRA update matrices")
 parser.add_argument('--lora-alpha', type=int, default=16, help="scaling factor")
@@ -37,6 +37,16 @@ args = parser.parse_args()
 os.makedirs(args.output_dir, exist_ok=True)
 
 sys.stdout = Logger(os.path.join(args.output_dir, 'logs-task-{}.txt'.format(args.data)))
+
+if args.num_classes == None:
+    if args.data == 'oxfordpet':
+        args.num_classes = 37
+    elif args.data == 'svhn' or args.data == 'cifar10':
+        args.num_classes = 10
+    elif args.data == 'oxfordflowers':
+        args.num_classes = 102
+    elif args.data == 'stanfordcars':
+        args.num_classes = 196
 
 print(args)
 
@@ -128,6 +138,35 @@ elif args.data == "oxfordflowers":
         ),
     )
 
+elif args.data == "cifar10":
+    train_ds = datasets.CIFAR10(
+        root=args.data_dir,
+        train=True,
+        download=True,
+        transform=transforms.Compose(
+            [
+                transforms.RandomResizedCrop(processor.size["height"]),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=processor.image_mean, std=processor.image_std),
+            ]
+        ),
+    )
+
+    test_ds = datasets.CIFAR10(
+        root=args.data_dir,
+        train=False,
+        download=True,
+        transform=transforms.Compose(
+            [
+                transforms.Resize(processor.size["height"]),
+                transforms.CenterCrop(processor.size["height"]),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=processor.image_mean, std=processor.image_std),
+            ]
+        ),
+    )
+
 train_loader = DataLoader(
     train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers
 )
@@ -135,9 +174,9 @@ test_loader = DataLoader(
     test_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
 )
 
-if args.use_lora:
+if args.use_lora == True:
     print("\nINFO: Using LoRA")
-    args.use_lora = True
+    # args.use_lora = True
 else:
     print("\nINFO: NOT using LoRA")
     args.use_lora = False
