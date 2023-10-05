@@ -485,19 +485,11 @@ class FewShotDataset():
             testset = datasets.CIFAR10(root=self.data_dir, train=False, download=True)
 
             # for trainlist
-            for img, label in trainset:
-                if label in self.task_dict[self.args.tasknum]:
-                    self.train_imgs.append(img)
-                    self.train_labels.append(label)
-
             while True:
                 img, img_label = random.choice(trainset)
                 # img_label = y_train.flat[idx] - 1
 
                 if label_freqs[img_label]+1 <= self.n_samples:
-                    # img = x_train[:,:,:,idx]
-                    # img_path = f'{dest_dir}/{idx}.jpg'
-                    # cv2.imwrite(img_path, img)
                     self.train_imgs.append(img)
                     self.train_labels.append(img_label)
                     label_freqs[img_label] += 1
