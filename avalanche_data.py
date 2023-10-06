@@ -67,13 +67,11 @@ class CustomDataset():
             self.task_dict = {0:19, 1:19, 2:19, 3:19, 4:20, 5:20, 6:20, 7:20, 8:20, 9:20}
             pass
 
-        elif self.args.data == 'cifar10':
+        else:
             self.trainset = datasets.CIFAR10(root='oxfordpet', train=True, download=True, transform=self.train_transform)
             self.testset = datasets.CIFAR10(root='oxfordpet', train=False, download=True, transform=self.test_transform)
             self.task_dict = {0:2, 1:2, 2:2, 3:2, 4:2}
             
-        else:
-            ValueError()
             
     def get_scenario(self):
         scenario = nc_benchmark(
