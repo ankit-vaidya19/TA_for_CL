@@ -12,7 +12,7 @@ class ViT_basic(nn.Module):
         self.model_name = model_name
         
         self.ViT = ViTModel.from_pretrained(self.model_name)
-        self.linear = nn.Linear(768, 10)
+        self.linear = nn.Linear(768, args.num_classes)
         self.print_trainable_parameters()
         self.ViT.to(self.device)
         self.linear.to(self.device)
