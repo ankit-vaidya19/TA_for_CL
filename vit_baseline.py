@@ -54,9 +54,11 @@ class ViT_LoRA(nn.Module):
         # for KL divergence loss
         self.softmax = nn.Softmax(dim=1)
 
-    def forward(self, x):
-        x = self.ViT(x).pooler_output
-        return x, self.linear(x)
+    def forward(self, x, return_all=False):
+        outs = self.ViT(x, output_attentions=True, output_hidden_states=True)
+        if return_all:
+            return x, self.linear(outs.pooler_output), outs
+        return outs, self.linear(outs.pooler_output)
 
     def print_trainable_parameters(self):
         trainable_params = 0
@@ -121,16 +123,16 @@ class ViT_LoRA(nn.Module):
             print(f"\tTrain\tLoss : {round(loss, 3)}",'\t',f"Accuracy : {round(acc, 3)}")
 
             if test_loader:
-                if (epoch+1) % args.test_interval == 0:
-                    test_loss, test_acc = self.test(test_loader)
-                    if test_acc > best_test_acc:
-                        patient_epochs = 0
-                        best_test_acc = test_acc
-                        print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
-                        torch.save(self.state_dict(), f"{args.output_dir}/vit_task_{args.tasknum}_best.pt")
-                    else:
-                        patient_epochs += 1
-                    
+            
+                test_loss, test_acc = self.test(test_loader)
+                if test_acc > best_test_acc:
+                    patient_epochs = 0
+                    best_test_acc = test_acc
+                    print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
+                    torch.save(self.state_dict(), f"{args.output_dir}/vit_task_{args.tasknum}_best.pt")
+                else:
+                    patient_epochs += 1
+                
                 if patient_epochs == args.patience:
                     print("INFO: Accuracy has not increased in the last {} epochs.".format(args.patience))
                     print("INFO: Stopping the run and saving the best weights.")
