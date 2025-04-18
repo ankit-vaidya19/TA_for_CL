@@ -49,9 +49,6 @@ if args.num_classes == None:
     elif args.data == 'stanfordcars':
         args.num_classes = 196
 
-# if args.num_classes == None:
-#     args.num_classes = 10 if args.data=='svhn' else( 37 if args.data=='oxfordpet' else 102)
-
 
 print(args)
 
