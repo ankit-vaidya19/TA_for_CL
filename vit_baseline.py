@@ -27,7 +27,9 @@ class ViT_LoRA(nn.Module):
         self.device = args.device
         
         print(self.device)
+
         if self.use_LoRA:
+            # instantiate LoRA_ViT model
             self.ViT = ViTModel.from_pretrained(self.model_name)
             self.linear = nn.Linear(768, args.num_classes)
             self.config = LoraConfig(
@@ -44,12 +46,17 @@ class ViT_LoRA(nn.Module):
             self.ViT = ViTModel.from_pretrained(self.model_name)
             self.linear = nn.Linear(768, args.num_classes)
             self.print_trainable_parameters()
+
         self.ViT.to(self.device)
         self.linear.to(self.device)
+        
+        #https://discuss.pytorch.org/t/kl-divergence-produces-negative-values/16791/16
+        # for KL divergence loss
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, x):
         x = self.ViT(x).pooler_output
-        return self.linear(x)
+        return x, self.linear(x)
 
     def print_trainable_parameters(self):
         trainable_params = 0
@@ -68,11 +75,13 @@ class ViT_LoRA(nn.Module):
         acc = np.sum((true == pred).astype(np.float32)) / len(true)
         return acc * 100
 
-    def fit(self, args, train_loader, test_loader):
+    def fit(self, args, train_loader, test_loader=None, ViT_prtn=None):
         optim = torch.optim.Adam(
             params=self.parameters(), lr=args.lr, weight_decay=args.weight_decay
         )
         criterion = nn.CrossEntropyLoss()
+        if ViT_prtn:
+            criterion_kldiv = nn.KLDivLoss(size_average=False)
         self.train()
 
         best_test_acc = -np.inf
@@ -85,32 +94,47 @@ class ViT_LoRA(nn.Module):
             for batch in tqdm(train_loader):
                 imgs = torch.Tensor(batch[0]).to(self.device)
                 labels = torch.Tensor(batch[1]).to(self.device)
-                scores = self(imgs)
-                loss = criterion(scores, labels)
+                bbone_params, scores = self(imgs)
+
+                # loss calculation
+                if ViT_prtn:
+                    ViT_prtn.eval()
+                    bbone_params_prtn, scores_prtn = ViT_prtn(imgs)
+                    # print(self.softmax(scores_prtn),"\n", self.softmax(scores))
+                    loss_kldiv = criterion_kldiv(self.softmax(bbone_params_prtn).log(), self.softmax(bbone_params))
+                    # print("\nKLDIV : ", loss_kldiv)
+                    loss = criterion(scores, labels)
+                    # print("Loss: ", loss_kldiv, loss)
+                    loss = 0.4*loss_kldiv + 0.6*loss
+                else:
+                    loss = criterion(scores, labels)
+
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
+                
                 train_loss.append(loss.detach().cpu().numpy())
                 train_labels.append(batch[1])
                 train_preds.append(scores.argmax(dim=-1))
             loss = sum(train_loss)/len(train_loss)
             acc = self.accuracy(torch.concat(train_labels, dim=0).cpu(),torch.concat(train_preds, dim=0).cpu())
-            print(f"\tTrain\tLoss - {round(loss, 3)}",'\t',f"Accuracy - {round(acc, 3)}")
+            print(f"\tTrain\tLoss : {round(loss, 3)}",'\t',f"Accuracy : {round(acc, 3)}")
 
-            if (epoch+1) % args.test_interval == 0:
-                test_loss, test_acc = self.test(test_loader)
-                if test_acc > best_test_acc:
-                    patient_epochs = 0
-                    best_test_acc = test_acc
-                    print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
-                    torch.save(self.state_dict(), f"{args.output_dir}/vit_task_{args.tasknum}_best.pt")
-            else:
-                patient_epochs += 1
-            
-            if patient_epochs == args.patience:
-                print("INFO: Accuracy has not increased in the last {} epochs.".format(args.patience))
-                print("INFO: Stopping the run and saving the best weights.")
-                break
+            if test_loader:
+                if (epoch+1) % args.test_interval == 0:
+                    test_loss, test_acc = self.test(test_loader)
+                    if test_acc > best_test_acc:
+                        patient_epochs = 0
+                        best_test_acc = test_acc
+                        print(f"\tCurrent best epoch : {epoch} \t Best test acc. : {round(best_test_acc,3)}")
+                        torch.save(self.state_dict(), f"{args.output_dir}/vit_task_{args.tasknum}_best.pt")
+                    else:
+                        patient_epochs += 1
+                    
+                if patient_epochs == args.patience:
+                    print("INFO: Accuracy has not increased in the last {} epochs.".format(args.patience))
+                    print("INFO: Stopping the run and saving the best weights.")
+                    break
             print("--"*100)
                 
 
@@ -124,13 +148,13 @@ class ViT_LoRA(nn.Module):
             for batch in tqdm(test_loader):
                 imgs = torch.Tensor(batch[0]).to(self.device)
                 labels = torch.Tensor(batch[1]).to(self.device)
-                scores = self(imgs)
+                bbone_params, scores = self(imgs)
                 loss = criterion(scores, labels)
                 test_loss.append(loss.detach().cpu().numpy())
                 test_labels.append(batch[1])
                 test_preds.append(scores.argmax(dim=-1))
             loss = sum(test_loss)/len(test_loss)
             acc = self.accuracy(torch.concat(test_labels, dim=0).cpu(),torch.concat(test_preds, dim=0).cpu())
-            print(f"\tTest:\tLoss - {round(loss, 3)}",'\t',f"Accuracy - {round(acc,3)}")
+            print(f"\tTest:\tLoss : {round(loss, 3)}",'\t',f"Accuracy : {round(acc,3)}")
             
             return loss, acc
